@@ -23,9 +23,9 @@ paths into filesystem paths.
 ```js
 var puli = require('puli').load('.puli/path-mappings.json')
 
-puli.path('/app/foo'); // returns the filesystem path associated to the virtual path /app/foo
-puli.paths('/app/**/*.js'); // find matching virtual paths and return associated filesystem paths as an array
-puli.exists('/app/**/*.js'); // check if the given virtual path exists or if the given glob contain paths
+puli.path('/res/foo'); // returns the filesystem path associated to the virtual path /app/foo
+puli.paths('/res/**/*.js'); // find matching virtual paths and return associated filesystem paths as an array
+puli.exists('/res/**/*.js'); // check if the given virtual path exists or if the given glob contain paths
 ```
 
 puli.js provides a read-only API: you cannot edit the path-mappings using it.
