@@ -43,7 +43,7 @@ gulp.task('lint-test', () =>
         .pipe(jshint.reporter('default'))
 );
 
-gulp.task('watch', () => {
+gulp.task('watch', ['babel'], () => {
     gulp.watch(config.paths.js.src, ['babel-src', 'test']);
     gulp.watch(config.paths.test.src, ['babel-test', 'test']);
 });

@@ -49,8 +49,8 @@ You can report any bugs or issues you find on the [issue tracker].
 If you want to contribute on the code, here are some informations:
 
 - puli.js is developed using ES6 ;
-- we use Babel and Grunt to compile to ES5: to compile yourself, you can either run `gulp` if
-you installed Gulp CLI globally or `node_modules/gulp/bin/gulp.js` if you want to use the local Gulp ;
+- we use Babel and Grunt to compile to ES5: to compile yourself, you can either run `npm run babel` to
+ compile one time or run `npm run watch` to compile your files live ;
 - the source code is located in `src` and tests are located in `test` : theses two directories are
 compiled by Gulp respectively to `dist` and `test-dist` ;
 - run `npm test` to launch the test suite (the tests use mocha) ;
