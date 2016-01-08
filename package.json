@@ -1,0 +1,50 @@
+{
+    "name": "puli.js",
+    "version": "0.0.1",
+    "author": "Titouan Galopin",
+    "main": "dist/puli.js",
+    "files": ["dist"],
+    "description": "Puli JsonRepository Javascript implementation for automation tools plugins",
+    "contributors": [
+        {
+            "name": "Titouan Galopin",
+            "email": "galopintitouan@gmail.com"
+        },
+        {
+            "name": "Bernhard Schussek",
+            "email": "bschussek@gmail.com"
+        }
+    ],
+    "scripts": {
+        "test": "node node_modules/mocha/bin/mocha --reporter spec test-dist/*"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:tgalopin/puli.js.git"
+    },
+    "keywords": [
+        "puli",
+        "php",
+        "composer",
+        "package",
+        "automation",
+        "publish"
+    ],
+    "dependencies": {},
+    "devDependencies": {
+        "babel": "^5.2.17",
+        "chai": "^2.3.0",
+        "gulp": "^3.8.11",
+        "gulp-babel": "^5.1.0",
+        "gulp-jshint": "^1.12.0",
+        "gulp-mocha": "^2.0.1",
+        "mocha": "^2.2.4"
+    },
+    "engine": "node >= 0.10.x",
+    "homepage": "https://github.com/tgalopin/puli.js",
+    "bugs": {
+        "url": "https://github.com/tgalopin/puli.js/issues"
+    },
+    "private": false,
+    "license": "MIT"
+}
