@@ -12,9 +12,7 @@ var _distPuliJs2 = _interopRequireDefault(_distPuliJs);
 
 describe('puli.js tests', function () {
 
-    var repository = new _distPuliJs2['default']('test');
-
-    console.log(repository);
+    var repository = _distPuliJs2['default'].load(__dirname + '/fixtures/find.json');
 
     it('path', function () {
         (0, _chai.expect)(repository.path('test')).to.equal('');
