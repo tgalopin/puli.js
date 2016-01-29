@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-import fs from 'fs';
+import Loader from './Loader.js';
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -49,47 +49,49 @@ export default class Puli {
      * You should probably not use this and use the static method
      * "load" instead:
      *
-     *      let repository = Puli.load('.puli/path-mappings.json');
+     *      let repository = Puli.load(__dirname + '/.puli/path-mappings.json', __dirname);
      *
      */
-    constructor() {
-        this.json = {};
+    constructor(references, baseDirectory) {
+        this.references = references;
+        this.baseDirectory = baseDirectory;
     }
 
     /**
      * Static method useful to load a configuration file quickly.
      */
-    static load(configFile) {
-        let repository = new Puli();
-
-        return repository.reload(configFile);
-    }
-
-    /**
-     * Change the configuration file used dynamically
-     *
-     * @param {string} configFile
-     * @returns {Puli}
-     */
-    reload(configFile) {
-        try {
-            this.json = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-        } catch (e) {
-            throw new Error('Puli configuration file was not found (file "'+ configFile +'" does not exist)');
-        }
-
-        return this;
+    static load(configFile, baseDirectory) {
+        return new Puli(Loader.load(configFile), baseDirectory);
     }
 
     /**
      * Resolve a Puli virtual path into a real filesystem path
      * using the same algorithm as the PHP JsonRepository.
      *
-     * @param {string} puliPath The Puli virtual path
+     * @param {string} path The Puli virtual path
      * @returns {string} The associated filesystem path
      */
-    path(puliPath) {
-        // todo
+    path(path) {
+        path = path.replace(/\/+$/, '');
+
+        let searchPathForTest = path + '/';
+
+        for (let currentPath in this.json) {
+            if (! this.json.hasOwnProperty(currentPath)) {
+                continue;
+            }
+
+            let currentPathForTest = currentPath.replace(/\/+$/, '') + '/';
+            let currentReferences = this.json[currentPath];
+
+            // We found a mapping that matches the search path
+            // e.g. mapping /a/b for path /a/b
+            if (searchPathForTest === currentPathForTest) {
+
+            }
+
+            console.log(currentReferences);
+        }
 
         return null;
     }

@@ -19,9 +19,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _fs = require('fs');
+var _LoaderJs = require('./Loader.js');
 
-var _fs2 = _interopRequireDefault(_fs);
+var _LoaderJs2 = _interopRequireDefault(_LoaderJs);
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -62,14 +62,15 @@ var Puli = (function () {
      * You should probably not use this and use the static method
      * "load" instead:
      *
-     *      let repository = Puli.load('.puli/path-mappings.json');
+     *      let repository = Puli.load(__dirname + '/.puli/path-mappings.json', __dirname);
      *
      */
 
-    function Puli() {
+    function Puli(references, baseDirectory) {
         _classCallCheck(this, Puli);
 
-        this.json = {};
+        this.references = references;
+        this.baseDirectory = baseDirectory;
     }
 
     /**
@@ -77,35 +78,34 @@ var Puli = (function () {
      */
 
     _createClass(Puli, [{
-        key: 'reload',
-
-        /**
-         * Change the configuration file used dynamically
-         *
-         * @param {string} configFile
-         * @returns {Puli}
-         */
-        value: function reload(configFile) {
-            try {
-                this.json = JSON.parse(_fs2['default'].readFileSync(configFile, 'utf8'));
-            } catch (e) {
-                throw new Error('Puli configuration file was not found (file "' + configFile + '" does not exist)');
-            }
-
-            return this;
-        }
+        key: 'path',
 
         /**
          * Resolve a Puli virtual path into a real filesystem path
          * using the same algorithm as the PHP JsonRepository.
          *
-         * @param {string} puliPath The Puli virtual path
+         * @param {string} path The Puli virtual path
          * @returns {string} The associated filesystem path
          */
-    }, {
-        key: 'path',
-        value: function path(puliPath) {
-            // todo
+        value: function path(_path) {
+            _path = _path.replace(/\/+$/, '');
+
+            var searchPathForTest = _path + '/';
+
+            for (var currentPath in this.json) {
+                if (!this.json.hasOwnProperty(currentPath)) {
+                    continue;
+                }
+
+                var currentPathForTest = currentPath.replace(/\/+$/, '') + '/';
+                var currentReferences = this.json[currentPath];
+
+                // We found a mapping that matches the search path
+                // e.g. mapping /a/b for path /a/b
+                if (searchPathForTest === currentPathForTest) {}
+
+                console.log(currentReferences);
+            }
 
             return null;
         }
@@ -141,10 +141,8 @@ var Puli = (function () {
         }
     }], [{
         key: 'load',
-        value: function load(configFile) {
-            var repository = new Puli();
-
-            return repository.reload(configFile);
+        value: function load(configFile, baseDirectory) {
+            return new Puli(_LoaderJs2['default'].load(configFile), baseDirectory);
         }
     }]);
 
