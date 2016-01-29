@@ -43,15 +43,15 @@ export default class Reference {
         return this.reference;
     }
 
-    isVirtual() {
+    isVirtualReference() {
         return this.type === TYPE_VIRTUAL;
     }
 
-    isLink() {
+    isLinkReference() {
         return this.type === TYPE_LINK;
     }
 
-    isFilesystem() {
+    isFilesystemReference() {
         return this.type === TYPE_FILESYSTEM;
     }
 

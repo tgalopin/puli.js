@@ -12,63 +12,63 @@ var _distReferenceJs2 = _interopRequireDefault(_distReferenceJs);
 
 describe('Reference', function () {
 
-    it('isVirtual()', function () {
+    it('isVirtualReference()', function () {
         var path = null;
         var reference = new _distReferenceJs2['default'](path);
 
         _chai.assert.equal(path, reference.getReference());
-        _chai.assert.isTrue(reference.isVirtual());
-        _chai.assert.isFalse(reference.isFilesystem());
-        _chai.assert.isFalse(reference.isLink());
+        _chai.assert.isTrue(reference.isVirtualReference());
+        _chai.assert.isFalse(reference.isFilesystemReference());
+        _chai.assert.isFalse(reference.isLinkReference());
     });
 
-    it('isLink()', function () {
+    it('isLinkReference()', function () {
         var path = '@/link';
         var reference = new _distReferenceJs2['default'](path);
 
         _chai.assert.equal(path, reference.getReference());
-        _chai.assert.isTrue(reference.isLink());
-        _chai.assert.isFalse(reference.isFilesystem());
-        _chai.assert.isFalse(reference.isVirtual());
+        _chai.assert.isTrue(reference.isLinkReference());
+        _chai.assert.isFalse(reference.isFilesystemReference());
+        _chai.assert.isFalse(reference.isVirtualReference());
     });
 
-    it('isFilesystem() absolute Unix', function () {
+    it('isFilesystemReference() absolute Unix', function () {
         var path = '/tgalopin/absolute/foo/bar';
         var reference = new _distReferenceJs2['default'](path);
 
         _chai.assert.equal(path, reference.getReference());
-        _chai.assert.isTrue(reference.isFilesystem());
-        _chai.assert.isFalse(reference.isLink());
-        _chai.assert.isFalse(reference.isVirtual());
+        _chai.assert.isTrue(reference.isFilesystemReference());
+        _chai.assert.isFalse(reference.isLinkReference());
+        _chai.assert.isFalse(reference.isVirtualReference());
     });
 
-    it('isFilesystem() absolute Windows', function () {
+    it('isFilesystemReference() absolute Windows', function () {
         var path = 'C:\\Users\\tgalopin\\absolute\\foo\\bar';
         var reference = new _distReferenceJs2['default'](path);
 
         _chai.assert.equal(path, reference.getReference());
-        _chai.assert.isTrue(reference.isFilesystem());
-        _chai.assert.isFalse(reference.isLink());
-        _chai.assert.isFalse(reference.isVirtual());
+        _chai.assert.isTrue(reference.isFilesystemReference());
+        _chai.assert.isFalse(reference.isLinkReference());
+        _chai.assert.isFalse(reference.isVirtualReference());
     });
 
-    it('isFilesystem() relative Unix', function () {
+    it('isFilesystemReference() relative Unix', function () {
         var path = '../../tgalopin/relative/../foo/bar';
         var reference = new _distReferenceJs2['default'](path);
 
         _chai.assert.equal(path, reference.getReference());
-        _chai.assert.isTrue(reference.isFilesystem());
-        _chai.assert.isFalse(reference.isLink());
-        _chai.assert.isFalse(reference.isVirtual());
+        _chai.assert.isTrue(reference.isFilesystemReference());
+        _chai.assert.isFalse(reference.isLinkReference());
+        _chai.assert.isFalse(reference.isVirtualReference());
     });
 
-    it('isFilesystem() relative Windows', function () {
+    it('isFilesystemReference() relative Windows', function () {
         var path = '..\\tgalopin\\relative\\..\\foo\\bar';
         var reference = new _distReferenceJs2['default'](path);
 
         _chai.assert.equal(path, reference.getReference());
-        _chai.assert.isTrue(reference.isFilesystem());
-        _chai.assert.isFalse(reference.isLink());
-        _chai.assert.isFalse(reference.isVirtual());
+        _chai.assert.isTrue(reference.isFilesystemReference());
+        _chai.assert.isFalse(reference.isLinkReference());
+        _chai.assert.isFalse(reference.isVirtualReference());
     });
 });

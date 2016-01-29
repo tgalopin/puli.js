@@ -10,6 +10,7 @@
  */
 
 import Loader from './Loader.js';
+import Resolver from './Resolver.js';
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -52,8 +53,8 @@ export default class Puli {
      *      let repository = Puli.load(__dirname + '/.puli/path-mappings.json', __dirname);
      *
      */
-    constructor(references, baseDirectory) {
-        this.references = references;
+    constructor(json, baseDirectory) {
+        this.resolver = new Resolver(json);
         this.baseDirectory = baseDirectory;
     }
 
@@ -72,28 +73,7 @@ export default class Puli {
      * @returns {string} The associated filesystem path
      */
     path(path) {
-        path = path.replace(/\/+$/, '');
-
-        let searchPathForTest = path + '/';
-
-        for (let currentPath in this.json) {
-            if (! this.json.hasOwnProperty(currentPath)) {
-                continue;
-            }
-
-            let currentPathForTest = currentPath.replace(/\/+$/, '') + '/';
-            let currentReferences = this.json[currentPath];
-
-            // We found a mapping that matches the search path
-            // e.g. mapping /a/b for path /a/b
-            if (searchPathForTest === currentPathForTest) {
-
-            }
-
-            console.log(currentReferences);
-        }
-
-        return null;
+        return this.resolver.searchReferences(path);
     }
 
     /**

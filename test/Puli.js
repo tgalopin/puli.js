@@ -2,11 +2,15 @@
 
 /* global it, describe */
 
-import {expect} from 'chai';
+import {assert} from 'chai';
 import Puli from '../dist/Puli.js';
 
-describe('puli.js tests', () => {
+describe('Puli', () => {
 
-    var repository = Puli.load(__dirname + '/fixtures/override-sub-path.json', __dirname);
+    var repository = Puli.load(__dirname + '/fixtures/override.json', __dirname);
+
+    it('path()', () => {
+        console.log(repository.path('/webmozart/file1'));
+    });
 
 });

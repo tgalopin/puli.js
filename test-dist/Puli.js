@@ -10,7 +10,11 @@ var _distPuliJs = require('../dist/Puli.js');
 
 var _distPuliJs2 = _interopRequireDefault(_distPuliJs);
 
-describe('puli.js tests', function () {
+describe('Puli', function () {
 
-    var repository = _distPuliJs2['default'].load(__dirname + '/fixtures/override-sub-path.json', __dirname);
+    var repository = _distPuliJs2['default'].load(__dirname + '/fixtures/override.json', __dirname);
+
+    it('path()', function () {
+        console.log(repository.path('/webmozart/file1'));
+    });
 });

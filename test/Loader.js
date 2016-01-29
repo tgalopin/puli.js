@@ -12,21 +12,21 @@ describe('Loader', () => {
         let built = Loader._buildReference(null);
 
         assert.isObject(built);
-        assert.isTrue(built.isVirtual());
+        assert.isTrue(built.isVirtualReference());
     });
 
     it('_buildReference() single link', () => {
         let built = Loader._buildReference('@/tgalopin/link');
 
         assert.isObject(built);
-        assert.isTrue(built.isLink());
+        assert.isTrue(built.isLinkReference());
     });
 
     it('_buildReference() single filesystem', () => {
         let built = Loader._buildReference('/tgalopin/filesystem');
 
         assert.isObject(built);
-        assert.isTrue(built.isFilesystem());
+        assert.isTrue(built.isFilesystemReference());
     });
 
     it('_buildReference() collection virtuals', () => {
@@ -39,7 +39,7 @@ describe('Loader', () => {
 
         for (let i in built) {
             assert.isObject(built[i]);
-            assert.isTrue(built[i].isVirtual());
+            assert.isTrue(built[i].isVirtualReference());
         }
     });
 
@@ -53,7 +53,7 @@ describe('Loader', () => {
 
         for (let i in built) {
             assert.isObject(built[i]);
-            assert.isTrue(built[i].isLink());
+            assert.isTrue(built[i].isLinkReference());
         }
     });
 
@@ -67,7 +67,7 @@ describe('Loader', () => {
 
         for (let i in built) {
             assert.isObject(built[i]);
-            assert.isTrue(built[i].isFilesystem());
+            assert.isTrue(built[i].isFilesystemReference());
         }
     });
 
@@ -81,13 +81,13 @@ describe('Loader', () => {
         assert.isArray(built);
 
         assert.isObject(built[0]);
-        assert.isTrue(built[0].isVirtual());
+        assert.isTrue(built[0].isVirtualReference());
 
         assert.isObject(built[1]);
-        assert.isTrue(built[1].isLink());
+        assert.isTrue(built[1].isLinkReference());
 
         assert.isObject(built[2]);
-        assert.isTrue(built[2].isFilesystem());
+        assert.isTrue(built[2].isFilesystemReference());
     });
 
 

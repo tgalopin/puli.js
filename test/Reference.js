@@ -7,64 +7,64 @@ import Reference from '../dist/Reference.js';
 
 describe('Reference', () => {
 
-    it('isVirtual()', () => {
+    it('isVirtualReference()', () => {
         let path = null;
         let reference = new Reference(path);
 
         assert.equal(path, reference.getReference());
-        assert.isTrue(reference.isVirtual());
-        assert.isFalse(reference.isFilesystem());
-        assert.isFalse(reference.isLink());
+        assert.isTrue(reference.isVirtualReference());
+        assert.isFalse(reference.isFilesystemReference());
+        assert.isFalse(reference.isLinkReference());
     });
 
-    it('isLink()', () => {
+    it('isLinkReference()', () => {
         let path = '@/link';
         let reference = new Reference(path);
 
         assert.equal(path, reference.getReference());
-        assert.isTrue(reference.isLink());
-        assert.isFalse(reference.isFilesystem());
-        assert.isFalse(reference.isVirtual());
+        assert.isTrue(reference.isLinkReference());
+        assert.isFalse(reference.isFilesystemReference());
+        assert.isFalse(reference.isVirtualReference());
     });
 
-    it('isFilesystem() absolute Unix', () => {
+    it('isFilesystemReference() absolute Unix', () => {
         let path = '/tgalopin/absolute/foo/bar';
         let reference = new Reference(path);
 
         assert.equal(path, reference.getReference());
-        assert.isTrue(reference.isFilesystem());
-        assert.isFalse(reference.isLink());
-        assert.isFalse(reference.isVirtual());
+        assert.isTrue(reference.isFilesystemReference());
+        assert.isFalse(reference.isLinkReference());
+        assert.isFalse(reference.isVirtualReference());
     });
 
-    it('isFilesystem() absolute Windows', () => {
+    it('isFilesystemReference() absolute Windows', () => {
         let path = 'C:\\Users\\tgalopin\\absolute\\foo\\bar';
         let reference = new Reference(path);
 
         assert.equal(path, reference.getReference());
-        assert.isTrue(reference.isFilesystem());
-        assert.isFalse(reference.isLink());
-        assert.isFalse(reference.isVirtual());
+        assert.isTrue(reference.isFilesystemReference());
+        assert.isFalse(reference.isLinkReference());
+        assert.isFalse(reference.isVirtualReference());
     });
 
-    it('isFilesystem() relative Unix', () => {
+    it('isFilesystemReference() relative Unix', () => {
         let path = '../../tgalopin/relative/../foo/bar';
         let reference = new Reference(path);
 
         assert.equal(path, reference.getReference());
-        assert.isTrue(reference.isFilesystem());
-        assert.isFalse(reference.isLink());
-        assert.isFalse(reference.isVirtual());
+        assert.isTrue(reference.isFilesystemReference());
+        assert.isFalse(reference.isLinkReference());
+        assert.isFalse(reference.isVirtualReference());
     });
 
-    it('isFilesystem() relative Windows', () => {
+    it('isFilesystemReference() relative Windows', () => {
         let path = '..\\tgalopin\\relative\\..\\foo\\bar';
         let reference = new Reference(path);
 
         assert.equal(path, reference.getReference());
-        assert.isTrue(reference.isFilesystem());
-        assert.isFalse(reference.isLink());
-        assert.isFalse(reference.isVirtual());
+        assert.isTrue(reference.isFilesystemReference());
+        assert.isFalse(reference.isLinkReference());
+        assert.isFalse(reference.isVirtualReference());
     });
 
 });

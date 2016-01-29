@@ -10,7 +10,7 @@
  */
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -22,6 +22,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var _LoaderJs = require('./Loader.js');
 
 var _LoaderJs2 = _interopRequireDefault(_LoaderJs);
+
+var _ResolverJs = require('./Resolver.js');
+
+var _ResolverJs2 = _interopRequireDefault(_ResolverJs);
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -56,97 +60,78 @@ var _LoaderJs2 = _interopRequireDefault(_LoaderJs);
 
 var Puli = (function () {
 
+  /**
+   * puli.js contructor
+   *
+   * You should probably not use this and use the static method
+   * "load" instead:
+   *
+   *      let repository = Puli.load(__dirname + '/.puli/path-mappings.json', __dirname);
+   *
+   */
+
+  function Puli(json, baseDirectory) {
+    _classCallCheck(this, Puli);
+
+    this.resolver = new _ResolverJs2['default'](json);
+    this.baseDirectory = baseDirectory;
+  }
+
+  /**
+   * Static method useful to load a configuration file quickly.
+   */
+
+  _createClass(Puli, [{
+    key: 'path',
+
     /**
-     * puli.js contructor
+     * Resolve a Puli virtual path into a real filesystem path
+     * using the same algorithm as the PHP JsonRepository.
      *
-     * You should probably not use this and use the static method
-     * "load" instead:
-     *
-     *      let repository = Puli.load(__dirname + '/.puli/path-mappings.json', __dirname);
-     *
+     * @param {string} path The Puli virtual path
+     * @returns {string} The associated filesystem path
      */
-
-    function Puli(references, baseDirectory) {
-        _classCallCheck(this, Puli);
-
-        this.references = references;
-        this.baseDirectory = baseDirectory;
+    value: function path(_path) {
+      return this.resolver.searchReferences(_path);
     }
 
     /**
-     * Static method useful to load a configuration file quickly.
+     * Check if a given Puli path exists (ie. can be resolved into
+     * a real filesystem path)
+     *
+     * @param {string} puliPath The Puli virtual path
+     * @returns {boolean} Whether the Puli path exists or not
      */
+  }, {
+    key: 'exists',
+    value: function exists(puliPath) {
+      // todo
 
-    _createClass(Puli, [{
-        key: 'path',
+      return null;
+    }
 
-        /**
-         * Resolve a Puli virtual path into a real filesystem path
-         * using the same algorithm as the PHP JsonRepository.
-         *
-         * @param {string} path The Puli virtual path
-         * @returns {string} The associated filesystem path
-         */
-        value: function path(_path) {
-            _path = _path.replace(/\/+$/, '');
+    /**
+     * Resolve a glob on Puli virtual paths into filesystem paths
+     * using the same algorithm as the PHP JsonRepository.
+     *
+     * @param {string} query The query glob used to filter the Puli virtual paths
+     * @returns {Array} The associated filesystem paths
+     */
+  }, {
+    key: 'paths',
+    value: function paths(query) {
+      // todo
 
-            var searchPathForTest = _path + '/';
+      return null;
+    }
+  }], [{
+    key: 'load',
+    value: function load(configFile, baseDirectory) {
+      return new Puli(_LoaderJs2['default'].load(configFile), baseDirectory);
+    }
+  }]);
 
-            for (var currentPath in this.json) {
-                if (!this.json.hasOwnProperty(currentPath)) {
-                    continue;
-                }
-
-                var currentPathForTest = currentPath.replace(/\/+$/, '') + '/';
-                var currentReferences = this.json[currentPath];
-
-                // We found a mapping that matches the search path
-                // e.g. mapping /a/b for path /a/b
-                if (searchPathForTest === currentPathForTest) {}
-
-                console.log(currentReferences);
-            }
-
-            return null;
-        }
-
-        /**
-         * Check if a given Puli path exists (ie. can be resolved into
-         * a real filesystem path)
-         *
-         * @param {string} puliPath The Puli virtual path
-         * @returns {boolean} Whether the Puli path exists or not
-         */
-    }, {
-        key: 'exists',
-        value: function exists(puliPath) {
-            // todo
-
-            return null;
-        }
-
-        /**
-         * Resolve a glob on Puli virtual paths into filesystem paths
-         * using the same algorithm as the PHP JsonRepository.
-         *
-         * @param {string} query The query glob used to filter the Puli virtual paths
-         * @returns {Array} The associated filesystem paths
-         */
-    }, {
-        key: 'paths',
-        value: function paths(query) {
-            // todo
-
-            return null;
-        }
-    }], [{
-        key: 'load',
-        value: function load(configFile, baseDirectory) {
-            return new Puli(_LoaderJs2['default'].load(configFile), baseDirectory);
-        }
-    }]);
-
-    return Puli;
+  return Puli;
 })();
 
 exports['default'] = Puli;

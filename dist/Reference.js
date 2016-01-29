@@ -59,18 +59,18 @@ var Reference = (function () {
             return this.reference;
         }
     }, {
-        key: 'isVirtual',
-        value: function isVirtual() {
+        key: 'isVirtualReference',
+        value: function isVirtualReference() {
             return this.type === TYPE_VIRTUAL;
         }
     }, {
-        key: 'isLink',
-        value: function isLink() {
+        key: 'isLinkReference',
+        value: function isLinkReference() {
             return this.type === TYPE_LINK;
         }
     }, {
-        key: 'isFilesystem',
-        value: function isFilesystem() {
+        key: 'isFilesystemReference',
+        value: function isFilesystemReference() {
             return this.type === TYPE_FILESYSTEM;
         }
     }]);

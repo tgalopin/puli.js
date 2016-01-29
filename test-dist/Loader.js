@@ -20,21 +20,21 @@ describe('Loader', function () {
         var built = _distLoaderJs2['default']._buildReference(null);
 
         _chai.assert.isObject(built);
-        _chai.assert.isTrue(built.isVirtual());
+        _chai.assert.isTrue(built.isVirtualReference());
     });
 
     it('_buildReference() single link', function () {
         var built = _distLoaderJs2['default']._buildReference('@/tgalopin/link');
 
         _chai.assert.isObject(built);
-        _chai.assert.isTrue(built.isLink());
+        _chai.assert.isTrue(built.isLinkReference());
     });
 
     it('_buildReference() single filesystem', function () {
         var built = _distLoaderJs2['default']._buildReference('/tgalopin/filesystem');
 
         _chai.assert.isObject(built);
-        _chai.assert.isTrue(built.isFilesystem());
+        _chai.assert.isTrue(built.isFilesystemReference());
     });
 
     it('_buildReference() collection virtuals', function () {
@@ -44,7 +44,7 @@ describe('Loader', function () {
 
         for (var i in built) {
             _chai.assert.isObject(built[i]);
-            _chai.assert.isTrue(built[i].isVirtual());
+            _chai.assert.isTrue(built[i].isVirtualReference());
         }
     });
 
@@ -55,7 +55,7 @@ describe('Loader', function () {
 
         for (var i in built) {
             _chai.assert.isObject(built[i]);
-            _chai.assert.isTrue(built[i].isLink());
+            _chai.assert.isTrue(built[i].isLinkReference());
         }
     });
 
@@ -66,7 +66,7 @@ describe('Loader', function () {
 
         for (var i in built) {
             _chai.assert.isObject(built[i]);
-            _chai.assert.isTrue(built[i].isFilesystem());
+            _chai.assert.isTrue(built[i].isFilesystemReference());
         }
     });
 
@@ -76,13 +76,13 @@ describe('Loader', function () {
         _chai.assert.isArray(built);
 
         _chai.assert.isObject(built[0]);
-        _chai.assert.isTrue(built[0].isVirtual());
+        _chai.assert.isTrue(built[0].isVirtualReference());
 
         _chai.assert.isObject(built[1]);
-        _chai.assert.isTrue(built[1].isLink());
+        _chai.assert.isTrue(built[1].isLinkReference());
 
         _chai.assert.isObject(built[2]);
-        _chai.assert.isTrue(built[2].isFilesystem());
+        _chai.assert.isTrue(built[2].isFilesystemReference());
     });
 
     var fixtures = getLoadFixtures();
