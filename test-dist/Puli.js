@@ -12,9 +12,9 @@ var _distPuliJs2 = _interopRequireDefault(_distPuliJs);
 
 describe('Puli', function () {
 
-    var repository = _distPuliJs2['default'].load(__dirname + '/fixtures/override.json', __dirname);
+    var repository = _distPuliJs2['default'].load(__dirname + '/fixtures/override-sub-path.json', __dirname);
 
     it('path()', function () {
-        console.log(repository.path('/webmozart/file1'));
+        console.log(repository.path('/webmozart/puli/file1'));
     });
 });

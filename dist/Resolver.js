@@ -9,6 +9,20 @@
  * file that was distributed with this source code.
  */
 
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
 /**
  * Resolves Puli virtulal paths into filesystem paths.
  * You should not use this component directly. Use the Puli
@@ -18,19 +32,13 @@
  *
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var Resolver = (function () {
-    function Resolver(json) {
+    function Resolver(json, baseDirectory) {
         _classCallCheck(this, Resolver);
 
         this.json = json;
+        this.baseDirectory = baseDirectory;
 
         this.STOP_ON_FIRST = 2;
         this.INCLUDE_ANCESTORS = 8;
@@ -199,7 +207,15 @@ var Resolver = (function () {
                     continue;
                 }
 
-                result.push(references[i].getReference());
+                var reference = references[i];
+                var referenceValue = reference.getReference();
+
+                if (reference.isFilesystemReference()) {
+                    referenceValue = this.baseDirectory.replace(/\/+$/, '') + '/' + referenceValue.replace(/^\/+/, '');
+                    referenceValue = _path2['default'].normalize(referenceValue);
+                }
+
+                result.push(referenceValue);
 
                 if (flags & this.STOP_ON_FIRST) {
                     return result;
@@ -207,6 +223,17 @@ var Resolver = (function () {
             }
 
             return result;
+        }
+    }, {
+        key: 'flatten',
+        value: function flatten(references) {
+            var keys = Object.keys(references);
+
+            if (0 === keys.length) {
+                return null;
+            }
+
+            return references[keys[0]];
         }
     }]);
 

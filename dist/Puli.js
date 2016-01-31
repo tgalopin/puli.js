@@ -70,11 +70,10 @@ var Puli = (function () {
    *
    */
 
-  function Puli(json, baseDirectory) {
+  function Puli(references, baseDirectory) {
     _classCallCheck(this, Puli);
 
-    this.resolver = new _ResolverJs2['default'](json);
-    this.baseDirectory = baseDirectory;
+    this.resolver = new _ResolverJs2['default'](references, baseDirectory);
   }
 
   /**
@@ -92,7 +91,13 @@ var Puli = (function () {
      * @returns {string} The associated filesystem path
      */
     value: function path(_path) {
-      return this.resolver.searchReferences(_path);
+      var resolved = this.resolver.flatten(this.resolver.searchReferences(_path));
+
+      if (!resolved) {
+        return resolved;
+      }
+
+      return resolved[0];
     }
 
     /**

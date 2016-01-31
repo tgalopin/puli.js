@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+import path from 'path';
+
 /**
  * Resolves Puli virtulal paths into filesystem paths.
  * You should not use this component directly. Use the Puli
@@ -20,8 +22,9 @@
  */
 export default class Resolver {
 
-    constructor(json) {
+    constructor(json, baseDirectory) {
         this.json = json;
+        this.baseDirectory = baseDirectory;
 
         this.STOP_ON_FIRST = 2;
         this.INCLUDE_ANCESTORS = 8;
@@ -185,7 +188,15 @@ export default class Resolver {
                 continue;
             }
 
-            result.push(references[i].getReference());
+            let reference = references[i];
+            let referenceValue = reference.getReference();
+
+            if (reference.isFilesystemReference()) {
+                referenceValue = this.baseDirectory.replace(/\/+$/, '') + '/' + referenceValue.replace(/^\/+/, '');
+                referenceValue = path.normalize(referenceValue);
+            }
+
+            result.push(referenceValue);
 
             if (flags & this.STOP_ON_FIRST) {
                 return result;
@@ -193,6 +204,16 @@ export default class Resolver {
         }
 
         return result;
+    }
+
+    flatten(references) {
+        let keys = Object.keys(references);
+
+        if (0 === keys.length) {
+            return null;
+        }
+
+        return references[keys[0]];
     }
 
 }

@@ -7,10 +7,10 @@ import Puli from '../dist/Puli.js';
 
 describe('Puli', () => {
 
-    var repository = Puli.load(__dirname + '/fixtures/override.json', __dirname);
+    var repository = Puli.load(__dirname + '/fixtures/override-sub-path.json', __dirname);
 
     it('path()', () => {
-        console.log(repository.path('/webmozart/file1'));
+        console.log(repository.path('/webmozart/puli/file1'));
     });
 
 });

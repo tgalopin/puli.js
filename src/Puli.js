@@ -53,9 +53,8 @@ export default class Puli {
      *      let repository = Puli.load(__dirname + '/.puli/path-mappings.json', __dirname);
      *
      */
-    constructor(json, baseDirectory) {
-        this.resolver = new Resolver(json);
-        this.baseDirectory = baseDirectory;
+    constructor(references, baseDirectory) {
+        this.resolver = new Resolver(references, baseDirectory);
     }
 
     /**
@@ -73,7 +72,13 @@ export default class Puli {
      * @returns {string} The associated filesystem path
      */
     path(path) {
-        return this.resolver.searchReferences(path);
+        let resolved = this.resolver.flatten(this.resolver.searchReferences(path));
+
+        if (! resolved) {
+            return resolved;
+        }
+
+        return resolved[0];
     }
 
     /**
