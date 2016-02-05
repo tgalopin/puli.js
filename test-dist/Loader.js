@@ -16,75 +16,6 @@ var _distReferenceJs2 = _interopRequireDefault(_distReferenceJs);
 
 describe('Loader', function () {
 
-    it('_buildReference() single virtual', function () {
-        var built = _distLoaderJs2['default']._buildReference(null);
-
-        _chai.assert.isObject(built);
-        _chai.assert.isTrue(built.isVirtualReference());
-    });
-
-    it('_buildReference() single link', function () {
-        var built = _distLoaderJs2['default']._buildReference('@/tgalopin/link');
-
-        _chai.assert.isObject(built);
-        _chai.assert.isTrue(built.isLinkReference());
-    });
-
-    it('_buildReference() single filesystem', function () {
-        var built = _distLoaderJs2['default']._buildReference('/tgalopin/filesystem');
-
-        _chai.assert.isObject(built);
-        _chai.assert.isTrue(built.isFilesystemReference());
-    });
-
-    it('_buildReference() collection virtuals', function () {
-        var built = _distLoaderJs2['default']._buildReference([null, null]);
-
-        _chai.assert.isArray(built);
-
-        for (var i in built) {
-            _chai.assert.isObject(built[i]);
-            _chai.assert.isTrue(built[i].isVirtualReference());
-        }
-    });
-
-    it('_buildReference() collection links', function () {
-        var built = _distLoaderJs2['default']._buildReference(['@/tgalopin/link1', '@/tgalopin/link2']);
-
-        _chai.assert.isArray(built);
-
-        for (var i in built) {
-            _chai.assert.isObject(built[i]);
-            _chai.assert.isTrue(built[i].isLinkReference());
-        }
-    });
-
-    it('_buildReference() collection filesystems', function () {
-        var built = _distLoaderJs2['default']._buildReference(['/tgalopin/filesystem1', '/tgalopin/filesystem2']);
-
-        _chai.assert.isArray(built);
-
-        for (var i in built) {
-            _chai.assert.isObject(built[i]);
-            _chai.assert.isTrue(built[i].isFilesystemReference());
-        }
-    });
-
-    it('_buildReference() collection mixed', function () {
-        var built = _distLoaderJs2['default']._buildReference([null, '@/tgalopin/link1', '/tgalopin/filesystem2']);
-
-        _chai.assert.isArray(built);
-
-        _chai.assert.isObject(built[0]);
-        _chai.assert.isTrue(built[0].isVirtualReference());
-
-        _chai.assert.isObject(built[1]);
-        _chai.assert.isTrue(built[1].isLinkReference());
-
-        _chai.assert.isObject(built[2]);
-        _chai.assert.isTrue(built[2].isFilesystemReference());
-    });
-
     var fixtures = getLoadFixtures();
 
     var _loop = function (i) {
@@ -99,7 +30,7 @@ describe('Loader', function () {
 
             for (var path in loaded.references) {
                 var reference = loaded.references[path];
-                _chai.assert.isTrue(Array.isArray(reference) || reference instanceof _distReferenceJs2['default']);
+                _chai.assert.isTrue(Array.isArray(reference) || typeof reference === 'string' || null === reference);
             }
         });
     };

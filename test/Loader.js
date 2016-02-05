@@ -8,89 +8,6 @@ import Reference from '../dist/Reference.js';
 
 describe('Loader', () => {
 
-    it('_buildReference() single virtual', () => {
-        let built = Loader._buildReference(null);
-
-        assert.isObject(built);
-        assert.isTrue(built.isVirtualReference());
-    });
-
-    it('_buildReference() single link', () => {
-        let built = Loader._buildReference('@/tgalopin/link');
-
-        assert.isObject(built);
-        assert.isTrue(built.isLinkReference());
-    });
-
-    it('_buildReference() single filesystem', () => {
-        let built = Loader._buildReference('/tgalopin/filesystem');
-
-        assert.isObject(built);
-        assert.isTrue(built.isFilesystemReference());
-    });
-
-    it('_buildReference() collection virtuals', () => {
-        let built = Loader._buildReference([
-            null,
-            null
-        ]);
-
-        assert.isArray(built);
-
-        for (let i in built) {
-            assert.isObject(built[i]);
-            assert.isTrue(built[i].isVirtualReference());
-        }
-    });
-
-    it('_buildReference() collection links', () => {
-        let built = Loader._buildReference([
-            '@/tgalopin/link1',
-            '@/tgalopin/link2'
-        ]);
-
-        assert.isArray(built);
-
-        for (let i in built) {
-            assert.isObject(built[i]);
-            assert.isTrue(built[i].isLinkReference());
-        }
-    });
-
-    it('_buildReference() collection filesystems', () => {
-        let built = Loader._buildReference([
-            '/tgalopin/filesystem1',
-            '/tgalopin/filesystem2'
-        ]);
-
-        assert.isArray(built);
-
-        for (let i in built) {
-            assert.isObject(built[i]);
-            assert.isTrue(built[i].isFilesystemReference());
-        }
-    });
-
-    it('_buildReference() collection mixed', () => {
-        let built = Loader._buildReference([
-            null,
-            '@/tgalopin/link1',
-            '/tgalopin/filesystem2'
-        ]);
-
-        assert.isArray(built);
-
-        assert.isObject(built[0]);
-        assert.isTrue(built[0].isVirtualReference());
-
-        assert.isObject(built[1]);
-        assert.isTrue(built[1].isLinkReference());
-
-        assert.isObject(built[2]);
-        assert.isTrue(built[2].isFilesystemReference());
-    });
-
-
     let fixtures = getLoadFixtures();
 
     for (let i in fixtures) {
@@ -105,7 +22,7 @@ describe('Loader', () => {
 
             for (let path in loaded.references) {
                 let reference = loaded.references[path];
-                assert.isTrue(Array.isArray(reference) || reference instanceof Reference);
+                assert.isTrue(Array.isArray(reference) || typeof reference === 'string' || null === reference);
             }
         });
     }

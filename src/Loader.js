@@ -46,37 +46,13 @@ export default class Loader {
                 continue;
             }
 
-            references[path] = this._buildReference(json[path]);
+            references[path] = json[path];
         }
 
         return {
             references: references,
             _order: _order
         };
-    }
-
-    /**
-     * Build a reference object or a collection of
-     * reference objects using a given JSON reference.
-     *
-     * @param {string|Array} reference
-     * @returns Reference
-     * @private
-     */
-    static _buildReference(reference) {
-        if (reference === null || typeof reference === 'string') {
-            return new Reference(reference);
-        }
-
-        let combinedReference = [];
-
-        for (let i in reference) {
-            if (reference.hasOwnProperty(i)) {
-                combinedReference.push(new Reference(reference[i]));
-            }
-        }
-
-        return combinedReference;
     }
 
 }

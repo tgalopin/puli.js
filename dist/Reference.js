@@ -51,7 +51,7 @@ var Reference = (function () {
     _createClass(Reference, [{
         key: 'toString',
         value: function toString() {
-            return this.getReference;
+            return this.getReference();
         }
     }, {
         key: 'getReference',

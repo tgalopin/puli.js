@@ -67,39 +67,13 @@ var Loader = (function () {
                     continue;
                 }
 
-                references[path] = this._buildReference(json[path]);
+                references[path] = json[path];
             }
 
             return {
                 references: references,
                 _order: _order
             };
-        }
-
-        /**
-         * Build a reference object or a collection of
-         * reference objects using a given JSON reference.
-         *
-         * @param {string|Array} reference
-         * @returns Reference
-         * @private
-         */
-    }, {
-        key: '_buildReference',
-        value: function _buildReference(reference) {
-            if (reference === null || typeof reference === 'string') {
-                return new _ReferenceJs2['default'](reference);
-            }
-
-            var combinedReference = [];
-
-            for (var i in reference) {
-                if (reference.hasOwnProperty(i)) {
-                    combinedReference.push(new _ReferenceJs2['default'](reference[i]));
-                }
-            }
-
-            return combinedReference;
         }
     }]);
 
