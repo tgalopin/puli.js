@@ -84,14 +84,13 @@ var Puli = (function () {
     key: 'path',
 
     /**
-     * Resolve a Puli virtual path into a real filesystem path
-     * using the same algorithm as the PHP JsonRepository.
+     * Resolve a Puli virtual path into a real filesystem path.
      *
      * @param {string} path The Puli virtual path
      * @returns {string} The associated filesystem path
      */
     value: function path(_path) {
-      var resolved = this.resolver.flatten(this.resolver.searchReferences(_path));
+      var resolved = this.resolver.flatten(this.resolver.searchReferences(_path, this.resolver.STOP_ON_FIRST));
 
       if (!resolved) {
         return resolved;
@@ -101,23 +100,21 @@ var Puli = (function () {
     }
 
     /**
-     * Check if a given Puli path exists (ie. can be resolved into
-     * a real filesystem path)
+     * Check if a glob exists on Puli virtual filesystem.
      *
-     * @param {string} puliPath The Puli virtual path
-     * @returns {boolean} Whether the Puli path exists or not
+     * @param {string} query The query glob used to filter the Puli virtual paths
+     * @returns {boolean} Whether the query had results or not
      */
   }, {
     key: 'exists',
-    value: function exists(puliPath) {
+    value: function exists(query) {
       // todo
 
       return null;
     }
 
     /**
-     * Resolve a glob on Puli virtual paths into filesystem paths
-     * using the same algorithm as the PHP JsonRepository.
+     * Resolve a glob on Puli virtual paths into filesystem paths.
      *
      * @param {string} query The query glob used to filter the Puli virtual paths
      * @returns {Array} The associated filesystem paths

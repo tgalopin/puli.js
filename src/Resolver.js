@@ -10,6 +10,7 @@
  */
 
 import path from 'path';
+import fs from 'fs';
 
 /**
  * Resolves Puli virtulal paths into filesystem paths.
@@ -71,6 +72,10 @@ export default class Resolver {
      * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
      */
     searchReferences(searchPath, flags) {
+        if (! flags) {
+            flags = 0;
+        }
+
         let result = {};
         let foundMatchingMappings = false;
 
@@ -89,7 +94,7 @@ export default class Resolver {
             // e.g. mapping /a/b for path /a/b
             if (searchPathForTest === currentPathForTest) {
                 foundMatchingMappings = true;
-                currentReferences = this.resolveReferences(currentReferences, flags);
+                currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
 
                 if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                     continue;
@@ -97,16 +102,20 @@ export default class Resolver {
 
                 result[currentPath] = currentReferences;
 
+                // Return unless an explicit mapping order is defined
+                // In that case, the ancestors need to be searched as well
                 if ((flags & this.STOP_ON_FIRST) && typeof this.json._order[currentPath] === 'undefined') {
                     return result;
                 }
+
+                continue;
             }
 
             // We found a mapping that lies within the search path
             // e.g. mapping /a/b/c for path /a/b
             if ((flags & this.INCLUDE_NESTED) && 0 === currentPathForTest.indexOf(searchPathForTest)) {
                 foundMatchingMappings = true;
-                currentReferences = this.resolveReferences(currentReferences, flags);
+                currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
 
                 if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                     continue;
@@ -114,9 +123,13 @@ export default class Resolver {
 
                 result[currentPath] = currentReferences;
 
+                // Return unless an explicit mapping order is defined
+                // In that case, the ancestors need to be searched as well
                 if ((flags & this.STOP_ON_FIRST) && typeof this.json._order[currentPath] === 'undefined') {
                     return result;
                 }
+
+                continue;
             }
 
             // We found a mapping that is an ancestor of the search path
@@ -126,7 +139,7 @@ export default class Resolver {
 
                 if (flags & this.INCLUDE_ANCESTORS) {
                     // Include the references of the ancestor
-                    currentReferences = this.resolveReferences(currentReferences, flags);
+                    currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
 
                     if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                         continue;
@@ -189,7 +202,7 @@ export default class Resolver {
                 // If no explicit mapping order is defined, simply append the
                 // new references to the existing ones
                 if (typeof this.json._order[currentPathWithNested] === 'undefined') {
-                    result[currentPathWithNested].concat(nestedReferences);
+                    result[currentPathWithNested] = result[currentPathWithNested].concat(nestedReferences);
 
                     continue;
                 }
@@ -219,57 +232,53 @@ export default class Resolver {
             }
         }
 
-        return result;
-    }
-
-    /**
-     * Resolves a list of references to filesystem paths (either
-     * relative or absolute at this stage), links or null.
-     *
-     * Each reference passed in can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * a filesystem path relative to the base directory
-     *  * an absolute filesystem path
-     *
-     * Each reference returned by this method can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * a filesystem path
-     *
-     * Additionally, the results are guaranteed to be an array.
-     *
-     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
-     * In that case, the results array has a maximum size of 1.
-     */
-    resolveReferences(references, flags) {
-        let result = [];
-
-        if (! Array.isArray(references)) {
-            references = [ references ];
+        // Resolve the order where it is explicitly set
+        if (typeof this.json._order === 'undefined') {
+            return result;
         }
 
-        let reference;
-
-        for (let i in references) {
-            if (! references.hasOwnProperty(i)) {
+        for (let currentPath in result) {
+            if (! result.hasOwnProperty(currentPath)) {
                 continue;
             }
 
-            reference = references[i];
+            let referencesByMappedPath = result[currentPath];
 
-            if (! this.isVirtualReference(reference) && ! this.isLinkReference(reference)) {
-                reference = this.baseDirectory.replace(/\/+$/, '') + '/' + reference.replace(/^\/+/, '');
-                reference = path.normalize(reference);
+            // If no order is defined for the path or if only one mapped path
+            // generated references, there's nothing to do
+            if (typeof this.json._order[currentPath] === 'undefined' ||
+                typeof referencesByMappedPath[currentPath] === 'undefined') {
+                continue;
             }
 
-            result.push(reference);
+            let orderedReferences = [];
 
-            if (flags & this.STOP_ON_FIRST) {
-                return result;
+            for (let j in this.json._order[currentPath]) {
+                if (! this.json._order[currentPath].hasOwnProperty(j)) {
+                    continue;
+                }
+
+                let orderEntry = this.json._order[currentPath][j];
+
+                if (typeof referencesByMappedPath[orderEntry.path] === 'undefined') {
+                    continue;
+                }
+
+                let i = 0;
+
+                for (i = 0; i < orderEntry.references && referencesByMappedPath[orderEntry.path].length > 0; i++) {
+                    orderedReferences.push(referencesByMappedPath[orderEntry.path].shift());
+                }
+
+                // Only include references of the first mapped path
+                // Since $stopOnFirst is set, those references have a
+                // maximum size of 1
+                if (flags & this.STOP_ON_FIRST) {
+                    break;
+                }
             }
+
+            result[currentPath] = orderedReferences;
         }
 
         return result;
@@ -293,10 +302,14 @@ export default class Resolver {
         let reference, referencedPath, referencedSearch, referencedReferences;
 
         for (let key in references) {
+            if (! references.hasOwnProperty(key)) {
+                continue;
+            }
+
             reference = references[key];
 
+            // Not a link
             if (! this.isLinkReference(reference)) {
-                // Not a link
                 result.push(reference);
 
                 if (flags & this.STOP_ON_FIRST) {
@@ -312,11 +325,19 @@ export default class Resolver {
             // Get all the file system paths that this link points to
             // and append them to the result
             for (let i in referencedSearch) {
+                if (! referencedSearch.hasOwnProperty(i)) {
+                    continue;
+                }
+
                 // Follow links recursively
                 referencedReferences = this.followLinks(referencedSearch[i]);
 
                 // Append all resulting target paths to the result
                 for (let j in referencedReferences) {
+                    if (! referencedReferences.hasOwnProperty(j)) {
+                        continue;
+                    }
+
                     result.push(referencedReferences[j]);
 
                     if (flags & this.STOP_ON_FIRST) {
@@ -348,6 +369,10 @@ export default class Resolver {
         let reference, nestedReference;
 
         for (let i in references) {
+            if (! references.hasOwnProperty(i)) {
+                continue;
+            }
+
             reference = references[i];
 
             // Filter out null values
@@ -358,13 +383,81 @@ export default class Resolver {
 
             nestedReference = this.rtrimSlashes(reference) + '/' + nestedPath;
 
-            if (true) { // if (file_exists($nestedReference))
+            try {
+                fs.accessSync(nestedReference, fs.F_OK);
+
                 result.push(nestedReference);
 
                 if (flags & this.STOP_ON_FIRST) {
                     return result;
                 }
+            } catch (e) {}
+        }
+
+        return result;
+    }
+
+    /**
+     * Resolves a list of references to filesystem paths (either
+     * relative or absolute at this stage), links or null.
+     *
+     * Each reference passed in can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * a filesystem path relative to the base directory
+     *  * an absolute filesystem path
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * a filesystem path
+     *
+     * Additionally, the results are guaranteed to be an array.
+     *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+     * In that case, the results array has a maximum size of 1.
+     */
+    resolveReferences(currentPath, references, flags) {
+        let result = [];
+
+        if (! Array.isArray(references)) {
+            references = [ references ];
+        }
+
+        let reference;
+
+        for (let i in references) {
+            if (! references.hasOwnProperty(i)) {
+                continue;
             }
+
+            reference = references[i];
+
+            if (this.isVirtualReference(reference) || this.isLinkReference(reference)) {
+                result.push(reference);
+
+                if (flags & this.STOP_ON_FIRST) {
+                    return result;
+                }
+
+                continue;
+            }
+
+            let absoluteReference = path.normalize(
+                this.baseDirectory.replace(/\/+$/, '') + '/' + reference.replace(/^\/+/, '')
+            );
+
+            try {
+                fs.accessSync(absoluteReference, fs.F_OK);
+
+                result.push(absoluteReference);
+
+                if (flags & this.STOP_ON_FIRST) {
+                    return result;
+                }
+            } catch (e) {}
         }
 
         return result;
@@ -393,7 +486,7 @@ export default class Resolver {
      * @returns {boolean}
      */
     isLinkReference(reference) {
-        return reference.length > 0 && '@' === reference.substr(0, 1);
+        return reference !== null && reference.length > 0 && '@' === reference.substr(0, 1);
     }
 
     /**
