@@ -50,15 +50,14 @@ gulp.task('lint-test', () =>
         .pipe(jshint.reporter('default'))
 );
 
-gulp.task('watch', ['babel'], () => {
+gulp.task('watch', () => {
+    gulp.run('test');
     gulp.watch(config.paths.js.src, ['babel-src', 'test']);
     gulp.watch(config.paths.test.src, ['babel-test', 'test']);
 });
 
 gulp.task('test', ['babel'], () =>
-    gulp.src([config.paths.test.run])
-        .pipe(mocha({ reporter: 'spec' }))
-        .on('error', err => console.log(err.stack))
+    gulp.src([config.paths.test.run]).pipe(mocha({ reporter: 'min' }))
 );
 
 // Default Task
