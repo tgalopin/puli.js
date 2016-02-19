@@ -13,6 +13,8 @@ import PathUtil from 'path';
 import Loader from './Loader.js';
 import Resolver from './Resolver.js';
 import ResourceNotFoundException from './Exception/ResourceNotFoundException.js';
+import ResourceVirtualException from './Exception/ResourceVirtualException.js';
+import InvalidPathException from './Exception/InvalidPathException.js';
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -73,11 +75,17 @@ export default class Puli {
      * @returns {string|null} The associated filesystem path
      */
     path(path) {
+        this._ensureInputValid(path);
+
         let references = this.resolver.searchReferences(PathUtil.normalize(path), this.resolver.STOP_ON_FIRST);
         let flattened = this.resolver.flatten(references);
 
-        if (! flattened) {
+        if (! flattened || typeof flattened[0] === 'undefined') {
             throw new ResourceNotFoundException(path);
+        }
+
+        if (! flattened[0]) {
+            throw new ResourceVirtualException(path);
         }
 
         return flattened[0];
@@ -105,6 +113,31 @@ export default class Puli {
         // todo
 
         return null;
+    }
+
+    /**
+     * Ensure a given path is valid, not empty and absolute.
+     * Internal method.
+     *
+     * @param {string} path
+     *
+     * @private
+     */
+    _ensureInputValid(path) {
+        // Type
+        if ('string' !== typeof path) {
+            throw new InvalidPathException(path);
+        }
+
+        // Non-empty
+        if ('' === path) {
+            throw new InvalidPathException(path);
+        }
+
+        // Absolute
+        if ('/' !== path.substr(0, 1)) {
+            throw new InvalidPathException(path);
+        }
     }
 
 }

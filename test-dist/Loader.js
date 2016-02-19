@@ -29,7 +29,7 @@ describe('Loader', function () {
 
     it('load() expects valid JSON configuration file', function () {
         (0, _chai.expect)(function () {
-            _distLoaderJs2['default'].load(__dirname + '/fixtures/invalid-json.json');
+            _distLoaderJs2['default'].load(__dirname + '/fixtures/invalid.json');
         }).to['throw'](_distExceptionConfigFileInvalidExceptionJs2['default']);
     });
 

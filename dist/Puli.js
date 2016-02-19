@@ -10,7 +10,7 @@
  */
 
 Object.defineProperty(exports, '__esModule', {
-  value: true
+    value: true
 });
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -34,6 +34,14 @@ var _ResolverJs2 = _interopRequireDefault(_ResolverJs);
 var _ExceptionResourceNotFoundExceptionJs = require('./Exception/ResourceNotFoundException.js');
 
 var _ExceptionResourceNotFoundExceptionJs2 = _interopRequireDefault(_ExceptionResourceNotFoundExceptionJs);
+
+var _ExceptionResourceVirtualExceptionJs = require('./Exception/ResourceVirtualException.js');
+
+var _ExceptionResourceVirtualExceptionJs2 = _interopRequireDefault(_ExceptionResourceVirtualExceptionJs);
+
+var _ExceptionInvalidPathExceptionJs = require('./Exception/InvalidPathException.js');
+
+var _ExceptionInvalidPathExceptionJs2 = _interopRequireDefault(_ExceptionInvalidPathExceptionJs);
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -68,81 +76,114 @@ var _ExceptionResourceNotFoundExceptionJs2 = _interopRequireDefault(_ExceptionRe
 
 var Puli = (function () {
 
-  /**
-   * puli.js contructor
-   *
-   * You should probably not use this and use the static method
-   * "load" instead:
-   *
-   *      let repository = Puli.load(__dirname + '/.puli/path-mappings.json', __dirname);
-   *
-   */
-
-  function Puli(references, baseDirectory) {
-    _classCallCheck(this, Puli);
-
-    this.resolver = new _ResolverJs2['default'](references, baseDirectory);
-  }
-
-  /**
-   * Static method useful to load a configuration file quickly.
-   */
-
-  _createClass(Puli, [{
-    key: 'path',
-
     /**
-     * Resolve a Puli virtual path into a real filesystem path.
+     * puli.js contructor
      *
-     * @param {string} path The Puli virtual path
-     * @returns {string|null} The associated filesystem path
+     * You should probably not use this and use the static method
+     * "load" instead:
+     *
+     *      let repository = Puli.load(__dirname + '/.puli/path-mappings.json', __dirname);
+     *
      */
-    value: function path(_path) {
-      var references = this.resolver.searchReferences(_path3['default'].normalize(_path), this.resolver.STOP_ON_FIRST);
-      var flattened = this.resolver.flatten(references);
 
-      if (!flattened) {
-        throw new _ExceptionResourceNotFoundExceptionJs2['default'](_path);
-      }
+    function Puli(references, baseDirectory) {
+        _classCallCheck(this, Puli);
 
-      return flattened[0];
+        this.resolver = new _ResolverJs2['default'](references, baseDirectory);
     }
 
     /**
-     * Check if a glob exists on Puli virtual filesystem.
-     *
-     * @param {string} query The query glob used to filter the Puli virtual paths
-     * @returns {boolean} Whether the query had results or not
+     * Static method useful to load a configuration file quickly.
      */
-  }, {
-    key: 'exists',
-    value: function exists(query) {
-      // todo
 
-      return null;
-    }
+    _createClass(Puli, [{
+        key: 'path',
 
-    /**
-     * Resolve a glob on Puli virtual paths into filesystem paths.
-     *
-     * @param {string} query The query glob used to filter the Puli virtual paths
-     * @returns {Array} The associated filesystem paths
-     */
-  }, {
-    key: 'paths',
-    value: function paths(query) {
-      // todo
+        /**
+         * Resolve a Puli virtual path into a real filesystem path.
+         *
+         * @param {string} path The Puli virtual path
+         * @returns {string|null} The associated filesystem path
+         */
+        value: function path(_path) {
+            this._ensureInputValid(_path);
 
-      return null;
-    }
-  }], [{
-    key: 'load',
-    value: function load(configFile, baseDirectory) {
-      return new Puli(_LoaderJs2['default'].load(configFile), baseDirectory);
-    }
-  }]);
+            var references = this.resolver.searchReferences(_path3['default'].normalize(_path), this.resolver.STOP_ON_FIRST);
+            var flattened = this.resolver.flatten(references);
 
-  return Puli;
+            if (!flattened || typeof flattened[0] === 'undefined') {
+                throw new _ExceptionResourceNotFoundExceptionJs2['default'](_path);
+            }
+
+            if (!flattened[0]) {
+                throw new _ExceptionResourceVirtualExceptionJs2['default'](_path);
+            }
+
+            return flattened[0];
+        }
+
+        /**
+         * Check if a glob exists on Puli virtual filesystem.
+         *
+         * @param {string} query The query glob used to filter the Puli virtual paths
+         * @returns {boolean} Whether the query had results or not
+         */
+    }, {
+        key: 'exists',
+        value: function exists(query) {
+            // todo
+
+            return null;
+        }
+
+        /**
+         * Resolve a glob on Puli virtual paths into filesystem paths.
+         *
+         * @param {string} query The query glob used to filter the Puli virtual paths
+         * @returns {Array} The associated filesystem paths
+         */
+    }, {
+        key: 'paths',
+        value: function paths(query) {
+            // todo
+
+            return null;
+        }
+
+        /**
+         * Ensure a given path is valid, not empty and absolute.
+         * Internal method.
+         *
+         * @param {string} path
+         *
+         * @private
+         */
+    }, {
+        key: '_ensureInputValid',
+        value: function _ensureInputValid(path) {
+            // Type
+            if ('string' !== typeof path) {
+                throw new _ExceptionInvalidPathExceptionJs2['default'](path);
+            }
+
+            // Non-empty
+            if ('' === path) {
+                throw new _ExceptionInvalidPathExceptionJs2['default'](path);
+            }
+
+            // Absolute
+            if ('/' !== path.substr(0, 1)) {
+                throw new _ExceptionInvalidPathExceptionJs2['default'](path);
+            }
+        }
+    }], [{
+        key: 'load',
+        value: function load(configFile, baseDirectory) {
+            return new Puli(_LoaderJs2['default'].load(configFile), baseDirectory);
+        }
+    }]);
+
+    return Puli;
 })();
 
 exports['default'] = Puli;

@@ -1,0 +1,9 @@
+{
+  "/webmozart/file": [
+    "resources/dir1/file1",
+    "resources/dir2/file2",
+    "resources/file"
+  ],
+  "/webmozart": null,
+  "/": null
+}

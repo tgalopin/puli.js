@@ -1,0 +1,6 @@
+{
+  "/webmozart/puli/file": "resources/file",
+  "/webmozart/puli": "resources/dir2",
+  "/webmozart": "resources/dir1",
+  "/": null
+}

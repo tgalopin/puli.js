@@ -15,7 +15,7 @@ describe('Loader', () => {
     });
 
     it('load() expects valid JSON configuration file', () => {
-        expect(() => { Loader.load(__dirname + '/fixtures/invalid-json.json'); }).to.throw(ConfigFileInvalidException);
+        expect(() => { Loader.load(__dirname + '/fixtures/invalid.json'); }).to.throw(ConfigFileInvalidException);
     });
 
     // Test reference
