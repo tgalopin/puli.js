@@ -1,0 +1,51 @@
+{
+  "_order": {
+    "/webmozart/puli/sub/file": [
+      {
+        "path": "/webmozart",
+        "references": 1
+      },
+      {
+        "path": "/webmozart/puli/sub/file",
+        "references": 1
+      },
+      {
+        "path": "/webmozart/puli/sub",
+        "references": 1
+      },
+      {
+        "path": "/webmozart/puli",
+        "references": 1
+      }
+    ],
+    "/webmozart/puli/sub": [
+      {
+        "path": "/webmozart",
+        "references": 1
+      },
+      {
+        "path": "/webmozart/puli/sub",
+        "references": 1
+      },
+      {
+        "path": "/webmozart/puli",
+        "references": 1
+      }
+    ],
+    "/webmozart/puli": [
+      {
+        "path": "/webmozart",
+        "references": 1
+      },
+      {
+        "path": "/webmozart/puli",
+        "references": 1
+      }
+    ]
+  },
+  "/webmozart/puli/sub/file": "temp-fixtures/file",
+  "/webmozart/puli/sub": "temp-fixtures/dir2",
+  "/webmozart/puli": "temp-fixtures/dir1",
+  "/webmozart": "temp-fixtures/dir3",
+  "/": null
+}

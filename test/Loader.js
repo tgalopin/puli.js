@@ -2,18 +2,30 @@
 
 /* global it, describe */
 
-import {assert} from 'chai';
+import {expect, assert} from 'chai';
 import Loader from '../dist/Loader.js';
+import ConfigFileNotFoundException from '../dist/Exception/ConfigFileNotFoundException.js';
+import ConfigFileInvalidException from '../dist/Exception/ConfigFileInvalidException.js';
 
 describe('Loader', () => {
 
+    // Exceptions
+    it('load() expects existing configuration file', () => {
+        expect(() => { Loader.load('/non-existing'); }).to.throw(ConfigFileNotFoundException);
+    });
+
+    it('load() expects valid JSON configuration file', () => {
+        expect(() => { Loader.load(__dirname + '/fixtures/invalid-json.json'); }).to.throw(ConfigFileInvalidException);
+    });
+
+    // Test reference
     let fixtures = getLoadFixtures();
 
     for (let i in fixtures) {
         let file = fixtures[i];
 
         it('load("' + file + '")', () => {
-            let loaded = Loader.load(__dirname + '/fixtures/' + file);
+            let loaded = Loader.load(__dirname + '/reference/' + file);
 
             assert.isObject(loaded);
             assert.isObject(loaded._order);

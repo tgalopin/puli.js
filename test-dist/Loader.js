@@ -10,15 +10,37 @@ var _distLoaderJs = require('../dist/Loader.js');
 
 var _distLoaderJs2 = _interopRequireDefault(_distLoaderJs);
 
+var _distExceptionConfigFileNotFoundExceptionJs = require('../dist/Exception/ConfigFileNotFoundException.js');
+
+var _distExceptionConfigFileNotFoundExceptionJs2 = _interopRequireDefault(_distExceptionConfigFileNotFoundExceptionJs);
+
+var _distExceptionConfigFileInvalidExceptionJs = require('../dist/Exception/ConfigFileInvalidException.js');
+
+var _distExceptionConfigFileInvalidExceptionJs2 = _interopRequireDefault(_distExceptionConfigFileInvalidExceptionJs);
+
 describe('Loader', function () {
 
+    // Exceptions
+    it('load() expects existing configuration file', function () {
+        (0, _chai.expect)(function () {
+            _distLoaderJs2['default'].load('/non-existing');
+        }).to['throw'](_distExceptionConfigFileNotFoundExceptionJs2['default']);
+    });
+
+    it('load() expects valid JSON configuration file', function () {
+        (0, _chai.expect)(function () {
+            _distLoaderJs2['default'].load(__dirname + '/fixtures/invalid-json.json');
+        }).to['throw'](_distExceptionConfigFileInvalidExceptionJs2['default']);
+    });
+
+    // Test reference
     var fixtures = getLoadFixtures();
 
     var _loop = function (i) {
         var file = fixtures[i];
 
         it('load("' + file + '")', function () {
-            var loaded = _distLoaderJs2['default'].load(__dirname + '/fixtures/' + file);
+            var loaded = _distLoaderJs2['default'].load(__dirname + '/reference/' + file);
 
             _chai.assert.isObject(loaded);
             _chai.assert.isObject(loaded._order);

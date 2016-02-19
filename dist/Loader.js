@@ -23,6 +23,14 @@ var _fs = require('fs');
 
 var _fs2 = _interopRequireDefault(_fs);
 
+var _ExceptionConfigFileNotFoundExceptionJs = require('./Exception/ConfigFileNotFoundException.js');
+
+var _ExceptionConfigFileNotFoundExceptionJs2 = _interopRequireDefault(_ExceptionConfigFileNotFoundExceptionJs);
+
+var _ExceptionConfigFileInvalidExceptionJs = require('./Exception/ConfigFileInvalidException.js');
+
+var _ExceptionConfigFileInvalidExceptionJs2 = _interopRequireDefault(_ExceptionConfigFileInvalidExceptionJs);
+
 /**
  * The PuliLoader loads path-mappings configuration files generated
  * by the PHP JsonRepository and hydrate a list associating Puli paths
@@ -41,12 +49,19 @@ var Loader = (function () {
     _createClass(Loader, null, [{
         key: 'load',
         value: function load(configFile) {
-            var json = undefined;
+            var fileContent = undefined,
+                json = undefined;
 
             try {
-                json = JSON.parse(_fs2['default'].readFileSync(configFile, 'utf8'));
+                fileContent = _fs2['default'].readFileSync(configFile, 'utf8');
             } catch (e) {
-                throw new Error('Puli configuration file was not found (file "' + configFile + '" does not exist)');
+                throw new _ExceptionConfigFileNotFoundExceptionJs2['default'](configFile);
+            }
+
+            try {
+                json = JSON.parse(fileContent);
+            } catch (e) {
+                throw new _ExceptionConfigFileInvalidExceptionJs2['default'](configFile);
             }
 
             // Hydrate a list of PuliReference objects

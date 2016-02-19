@@ -19,6 +19,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _path2 = require('path');
+
+var _path3 = _interopRequireDefault(_path2);
+
 var _LoaderJs = require('./Loader.js');
 
 var _LoaderJs2 = _interopRequireDefault(_LoaderJs);
@@ -26,6 +30,10 @@ var _LoaderJs2 = _interopRequireDefault(_LoaderJs);
 var _ResolverJs = require('./Resolver.js');
 
 var _ResolverJs2 = _interopRequireDefault(_ResolverJs);
+
+var _ExceptionResourceNotFoundExceptionJs = require('./Exception/ResourceNotFoundException.js');
+
+var _ExceptionResourceNotFoundExceptionJs2 = _interopRequireDefault(_ExceptionResourceNotFoundExceptionJs);
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -87,16 +95,17 @@ var Puli = (function () {
      * Resolve a Puli virtual path into a real filesystem path.
      *
      * @param {string} path The Puli virtual path
-     * @returns {string} The associated filesystem path
+     * @returns {string|null} The associated filesystem path
      */
     value: function path(_path) {
-      var resolved = this.resolver.flatten(this.resolver.searchReferences(_path, this.resolver.STOP_ON_FIRST));
+      var references = this.resolver.searchReferences(_path3['default'].normalize(_path), this.resolver.STOP_ON_FIRST);
+      var flattened = this.resolver.flatten(references);
 
-      if (!resolved) {
-        return resolved;
+      if (!flattened) {
+        throw new _ExceptionResourceNotFoundExceptionJs2['default'](_path);
       }
 
-      return resolved[0];
+      return flattened[0];
     }
 
     /**

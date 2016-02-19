@@ -9,8 +9,10 @@
  * file that was distributed with this source code.
  */
 
+import PathUtil from 'path';
 import Loader from './Loader.js';
 import Resolver from './Resolver.js';
+import ResourceNotFoundException from './Exception/ResourceNotFoundException.js';
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -68,16 +70,17 @@ export default class Puli {
      * Resolve a Puli virtual path into a real filesystem path.
      *
      * @param {string} path The Puli virtual path
-     * @returns {string} The associated filesystem path
+     * @returns {string|null} The associated filesystem path
      */
     path(path) {
-        let resolved = this.resolver.flatten(this.resolver.searchReferences(path, this.resolver.STOP_ON_FIRST));
+        let references = this.resolver.searchReferences(PathUtil.normalize(path), this.resolver.STOP_ON_FIRST);
+        let flattened = this.resolver.flatten(references);
 
-        if (! resolved) {
-            return resolved;
+        if (! flattened) {
+            throw new ResourceNotFoundException(path);
         }
 
-        return resolved[0];
+        return flattened[0];
     }
 
     /**

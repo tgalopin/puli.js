@@ -1,0 +1,7 @@
+{
+  "/webmozart/link/foo": "../../../home/tgalopin/devenv/www/puli-repository/tests/Fixtures/dir1",
+  "/webmozart/link/bar": "@/webmozart/link/foo",
+  "/webmozart/link": null,
+  "/webmozart": null,
+  "/": null
+}

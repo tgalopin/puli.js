@@ -10,6 +10,8 @@
  */
 
 import fs from 'fs';
+import ConfigFileNotFoundException from './Exception/ConfigFileNotFoundException.js';
+import ConfigFileInvalidException from './Exception/ConfigFileInvalidException.js';
 
 /**
  * The PuliLoader loads path-mappings configuration files generated
@@ -23,12 +25,18 @@ import fs from 'fs';
 export default class Loader {
 
     static load(configFile) {
-        let json;
+        let fileContent, json;
 
         try {
-            json = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+            fileContent = fs.readFileSync(configFile, 'utf8');
         } catch (e) {
-            throw new Error('Puli configuration file was not found (file "'+ configFile +'" does not exist)');
+            throw new ConfigFileNotFoundException(configFile);
+        }
+
+        try {
+            json = JSON.parse(fileContent);
+        } catch (e) {
+            throw new ConfigFileInvalidException(configFile);
         }
 
         // Hydrate a list of PuliReference objects
