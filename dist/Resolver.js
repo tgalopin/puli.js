@@ -248,7 +248,7 @@ var Resolver = (function () {
             }
 
             // Resolve the order where it is explicitly set
-            if (typeof this.json['_order'] === 'undefined') {
+            if (typeof this.json._order === 'undefined') {
                 return result;
             }
 
@@ -274,14 +274,14 @@ var Resolver = (function () {
 
                     var orderEntry = this.json._order[currentPath][j];
 
-                    if (typeof referencesByMappedPath[orderEntry['path']] === 'undefined') {
+                    if (typeof referencesByMappedPath[orderEntry.path] === 'undefined') {
                         continue;
                     }
 
                     var i = 0;
 
-                    for (i = 0; i < orderEntry['references'] && referencesByMappedPath[orderEntry['path']].length > 0; i++) {
-                        orderedReferences.push(referencesByMappedPath[orderEntry['path']].shift());
+                    for (i = 0; i < orderEntry.references && referencesByMappedPath[orderEntry.path].length > 0; i++) {
+                        orderedReferences.push(referencesByMappedPath[orderEntry.path].shift());
                     }
 
                     // Only include references of the first mapped path

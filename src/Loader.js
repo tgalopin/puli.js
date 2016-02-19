@@ -10,7 +10,6 @@
  */
 
 import fs from 'fs';
-import Reference from './Reference.js';
 
 /**
  * The PuliLoader loads path-mappings configuration files generated

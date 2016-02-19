@@ -4,7 +4,6 @@
 
 import {assert} from 'chai';
 import Loader from '../dist/Loader.js';
-import Reference from '../dist/Reference.js';
 
 describe('Loader', () => {
 

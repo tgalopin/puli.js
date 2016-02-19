@@ -10,10 +10,6 @@ var _distLoaderJs = require('../dist/Loader.js');
 
 var _distLoaderJs2 = _interopRequireDefault(_distLoaderJs);
 
-var _distReferenceJs = require('../dist/Reference.js');
-
-var _distReferenceJs2 = _interopRequireDefault(_distReferenceJs);
-
 describe('Loader', function () {
 
     var fixtures = getLoadFixtures();

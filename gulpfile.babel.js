@@ -50,6 +50,8 @@ gulp.task('lint-test', () =>
         .pipe(jshint.reporter('default'))
 );
 
+gulp.task('lint', ['lint-src', 'lint-test']);
+
 gulp.task('watch', () => {
     gulp.run('test');
     gulp.watch(config.paths.js.src, ['babel-src', 'test']);
@@ -61,4 +63,4 @@ gulp.task('test', ['babel'], () =>
 );
 
 // Default Task
-gulp.task('default', ['babel', 'test']);
+gulp.task('default', ['watch']);

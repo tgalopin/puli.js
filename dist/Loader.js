@@ -23,10 +23,6 @@ var _fs = require('fs');
 
 var _fs2 = _interopRequireDefault(_fs);
 
-var _ReferenceJs = require('./Reference.js');
-
-var _ReferenceJs2 = _interopRequireDefault(_ReferenceJs);
-
 /**
  * The PuliLoader loads path-mappings configuration files generated
  * by the PHP JsonRepository and hydrate a list associating Puli paths
