@@ -43,9 +43,9 @@
       }
     ]
   },
-  "/webmozart/puli/sub/file": "temp-fixtures/file",
-  "/webmozart/puli/sub": "temp-fixtures/dir2",
-  "/webmozart/puli": "temp-fixtures/dir1",
-  "/webmozart": "temp-fixtures/dir3",
+  "/webmozart/puli/sub/file": "resources/file",
+  "/webmozart/puli/sub": "resources/dir2",
+  "/webmozart/puli": "resources/dir1",
+  "/webmozart": "resources/dir3",
   "/": null
 }

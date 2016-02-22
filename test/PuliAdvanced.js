@@ -30,4 +30,11 @@ describe('Puli - Advanced (with order and orverride) -', () => {
         assert.equal(repo.path('/webmozart/file1'), __dirname + '/fixtures/resources/dir1/file1');
     });
 
+    it('path() override superpath', () => {
+        let repo = Puli.load(__dirname + '/fixtures/override-super-path.json', __dirname + '/fixtures');
+
+        assert.equal(repo.path('/webmozart/puli/file'), __dirname + '/fixtures/resources/file');
+        assert.equal(repo.path('/webmozart/puli'), __dirname + '/fixtures/resources/dir1');
+    });
+
 });

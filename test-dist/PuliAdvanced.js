@@ -44,4 +44,11 @@ describe('Puli - Advanced (with order and orverride) -', function () {
         _chai.assert.equal(repo.path('/webmozart/puli/file2'), __dirname + '/fixtures/resources/dir2/file2');
         _chai.assert.equal(repo.path('/webmozart/file1'), __dirname + '/fixtures/resources/dir1/file1');
     });
+
+    it('path() override superpath', function () {
+        var repo = _distPuliJs2['default'].load(__dirname + '/fixtures/override-super-path.json', __dirname + '/fixtures');
+
+        _chai.assert.equal(repo.path('/webmozart/puli/file'), __dirname + '/fixtures/resources/file');
+        _chai.assert.equal(repo.path('/webmozart/puli'), __dirname + '/fixtures/resources/dir1');
+    });
 });
