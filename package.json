@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "author": "Titouan Galopin",
   "main": "dist/Puli.js",
-  "files": [ "dist", "src" ],
+  "files": [
+    "dist",
+    "src"
+  ],
   "description": "Puli JsonRepository Javascript implementation for automation tools plugins",
   "contributors": [
     {
@@ -32,7 +35,10 @@
     "automation",
     "publish"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "glob-base": "^0.3.0",
+    "micromatch": "^2.3.7"
+  },
   "devDependencies": {
     "babel": "^5.2.17",
     "chai": "^2.3.0",

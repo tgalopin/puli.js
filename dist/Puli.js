@@ -106,7 +106,7 @@ var Puli = (function () {
          * @returns {string|null} The associated filesystem path
          */
         value: function path(_path) {
-            this._ensureInputValid(_path);
+            _path = this._sanitize(_path);
 
             var references = this.resolver.searchReferences(_path3['default'].normalize(_path), this.resolver.STOP_ON_FIRST);
             var flattened = this.resolver.flatten(references);
@@ -123,20 +123,6 @@ var Puli = (function () {
         }
 
         /**
-         * Check if a glob exists on Puli virtual filesystem.
-         *
-         * @param {string} query The query glob used to filter the Puli virtual paths
-         * @returns {boolean} Whether the query had results or not
-         */
-    }, {
-        key: 'exists',
-        value: function exists(query) {
-            // todo
-
-            return null;
-        }
-
-        /**
          * Resolve a glob on Puli virtual paths into filesystem paths.
          *
          * @param {string} query The query glob used to filter the Puli virtual paths
@@ -145,7 +131,19 @@ var Puli = (function () {
     }, {
         key: 'paths',
         value: function paths(query) {
-            // todo
+            return this.resolver.referencesForGlob(this._sanitize(query), 0);
+        }
+
+        /**
+         * Check if a glob exists on Puli virtual filesystem.
+         *
+         * @param {string} query The query glob used to filter the Puli virtual paths
+         * @returns {boolean} Whether the query had results or not
+         */
+    }, {
+        key: 'exists',
+        value: function exists(query) {
+            query = this._sanitize(query);
 
             return null;
         }
@@ -159,8 +157,8 @@ var Puli = (function () {
          * @private
          */
     }, {
-        key: '_ensureInputValid',
-        value: function _ensureInputValid(path) {
+        key: '_sanitize',
+        value: function _sanitize(path) {
             // Type
             if ('string' !== typeof path) {
                 throw new _ExceptionInvalidPathExceptionJs2['default'](path);
@@ -175,6 +173,8 @@ var Puli = (function () {
             if ('/' !== path.substr(0, 1)) {
                 throw new _ExceptionInvalidPathExceptionJs2['default'](path);
             }
+
+            return _path3['default'].normalize(path);
         }
     }], [{
         key: 'load',

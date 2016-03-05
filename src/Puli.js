@@ -75,7 +75,7 @@ export default class Puli {
      * @returns {string|null} The associated filesystem path
      */
     path(path) {
-        this._ensureInputValid(path);
+        path = this._sanitize(path);
 
         let references = this.resolver.searchReferences(PathUtil.normalize(path), this.resolver.STOP_ON_FIRST);
         let flattened = this.resolver.flatten(references);
@@ -92,25 +92,23 @@ export default class Puli {
     }
 
     /**
-     * Check if a glob exists on Puli virtual filesystem.
-     *
-     * @param {string} query The query glob used to filter the Puli virtual paths
-     * @returns {boolean} Whether the query had results or not
-     */
-    exists(query) {
-        // todo
-
-        return null;
-    }
-
-    /**
      * Resolve a glob on Puli virtual paths into filesystem paths.
      *
      * @param {string} query The query glob used to filter the Puli virtual paths
      * @returns {Array} The associated filesystem paths
      */
     paths(query) {
-        // todo
+        return this.resolver.referencesForGlob(this._sanitize(query), 0);
+    }
+
+    /**
+     * Check if a glob exists on Puli virtual filesystem.
+     *
+     * @param {string} query The query glob used to filter the Puli virtual paths
+     * @returns {boolean} Whether the query had results or not
+     */
+    exists(query) {
+        query = this._sanitize(query);
 
         return null;
     }
@@ -123,7 +121,7 @@ export default class Puli {
      *
      * @private
      */
-    _ensureInputValid(path) {
+    _sanitize(path) {
         // Type
         if ('string' !== typeof path) {
             throw new InvalidPathException(path);
@@ -138,6 +136,8 @@ export default class Puli {
         if ('/' !== path.substr(0, 1)) {
             throw new InvalidPathException(path);
         }
+
+        return PathUtil.normalize(path);
     }
 
 }

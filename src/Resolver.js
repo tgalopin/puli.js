@@ -9,8 +9,10 @@
  * file that was distributed with this source code.
  */
 
-import path from 'path';
-import fs from 'fs';
+import PathUtil from 'path';
+import Filesystem from 'fs';
+import globInfo from 'glob-base';
+import globMatch from 'micromatch';
 
 /**
  * Resolves Puli virtulal paths into filesystem paths.
@@ -79,7 +81,7 @@ export default class Resolver {
         let result = {};
         let foundMatchingMappings = false;
 
-        searchPath = this.rtrimSlashes(searchPath);
+        searchPath = this._rtrimSlashes(searchPath);
         let searchPathForTest = searchPath + '/';
 
         for (let currentPath in this.json.references) {
@@ -87,14 +89,14 @@ export default class Resolver {
                 continue;
             }
 
-            let currentPathForTest = this.rtrimSlashes(currentPath) + '/';
+            let currentPathForTest = this._rtrimSlashes(currentPath) + '/';
             let currentReferences = this.json.references[currentPath];
 
             // We found a mapping that matches the search path
             // e.g. mapping /a/b for path /a/b
             if (searchPathForTest === currentPathForTest) {
                 foundMatchingMappings = true;
-                currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
+                currentReferences = this._resolveReferences(currentPath, currentReferences, flags);
 
                 if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                     continue;
@@ -115,7 +117,7 @@ export default class Resolver {
             // e.g. mapping /a/b/c for path /a/b
             if ((flags & this.INCLUDE_NESTED) && 0 === currentPathForTest.indexOf(searchPathForTest)) {
                 foundMatchingMappings = true;
-                currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
+                currentReferences = this._resolveReferences(currentPath, currentReferences, flags);
 
                 if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                     continue;
@@ -139,7 +141,7 @@ export default class Resolver {
 
                 if (flags & this.INCLUDE_ANCESTORS) {
                     // Include the references of the ancestor
-                    currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
+                    currentReferences = this._resolveReferences(currentPath, currentReferences, flags);
 
                     if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                         continue;
@@ -159,18 +161,18 @@ export default class Resolver {
                 // Check the filesystem directories pointed to by the ancestors
                 // for the searched path
                 let nestedPath = searchPath.substr(currentPathForTest.length);
-                let currentPathWithNested = this.rtrimSlashes(currentPath) + '/' + nestedPath;
+                let currentPathWithNested = this._rtrimSlashes(currentPath) + '/' + nestedPath;
 
                 // Follow links so that we can check the nested directories in
                 // the final transitive link targets
-                let currentReferencesResolved = this.followLinks(
+                let currentReferencesResolved = this._followLinks(
                     // Never stop on first, since appendNestedPath() might
                     // discard the first but accept the second entry
-                    this.resolveReferences(currentPath, currentReferences, flags & (~this.STOP_ON_FIRST))
+                    this._resolveReferences(currentPath, currentReferences, flags & (~this.STOP_ON_FIRST))
                 );
 
                 // Append the path and check which of the resulting paths exist
-                let nestedReferences = this.appendPathAndFilterExisting(
+                let nestedReferences = this._appendPathAndFilterExisting(
                     currentReferencesResolved,
                     nestedPath,
                     flags
@@ -285,6 +287,49 @@ export default class Resolver {
     }
 
     /**
+     *
+     * @param references
+     * @returns {string}
+     */
+    flatten(references) {
+        if (! references || 0 === references.length) {
+            return [];
+        }
+
+        let keys = Object.keys(references);
+
+        if (0 === keys.length) {
+            return [];
+        }
+
+        return references[keys[0]];
+    }
+
+    /**
+     * Get references for a given glob.
+     *
+     * @param {string} query
+     * @param {int} flags
+     *
+     * @return {Array}
+     */
+    referencesForGlob(query, flags) {
+        let glob = globInfo(query);
+
+        if (! glob.isGlob) {
+            return this.flatten(this.searchReferences(query, this.STOP_ON_FIRST));
+        }
+
+        return this._flattenWithFilter(
+            // Never stop on the first result before applying the filter since
+            // the filter may reject the only returned path
+            this.searchReferences(glob.base, this.INCLUDE_NESTED),
+            query,
+            flags
+        );
+    }
+
+    /**
      * Follows any link in a list of references.
      *
      * This method takes all the given references, checks for links starting
@@ -297,7 +342,7 @@ export default class Resolver {
      *
      * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
      */
-    followLinks(references, flags) {
+    _followLinks(references, flags) {
         let result = [];
         let reference, referencedPath, referencedSearch, referencedReferences;
 
@@ -309,7 +354,7 @@ export default class Resolver {
             reference = references[key];
 
             // Not a link
-            if (! this.isLinkReference(reference)) {
+            if (! this._isLinkReference(reference)) {
                 result.push(reference);
 
                 if (flags & this.STOP_ON_FIRST) {
@@ -330,7 +375,7 @@ export default class Resolver {
                 }
 
                 // Follow links recursively
-                referencedReferences = this.followLinks(referencedSearch[i]);
+                referencedReferences = this._followLinks(referencedSearch[i]);
 
                 // Append all resulting target paths to the result
                 for (let j in referencedReferences) {
@@ -364,7 +409,7 @@ export default class Resolver {
      *
      * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
      */
-    appendPathAndFilterExisting(references, nestedPath, flags) {
+    _appendPathAndFilterExisting(references, nestedPath, flags) {
         let result = [];
         let reference, nestedReference;
 
@@ -377,14 +422,14 @@ export default class Resolver {
 
             // Filter out null values
             // Links should be followed before calling this method
-            if (this.isVirtualReference(reference)) {
+            if (this._isVirtualReference(reference)) {
                 continue;
             }
 
-            nestedReference = this.rtrimSlashes(reference) + '/' + nestedPath;
+            nestedReference = this._rtrimSlashes(reference) + '/' + nestedPath;
 
             try {
-                fs.accessSync(nestedReference, fs.F_OK);
+                Filesystem.accessSync(nestedReference, Filesystem.F_OK);
 
                 result.push(nestedReference);
 
@@ -419,7 +464,7 @@ export default class Resolver {
      * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
      * In that case, the results array has a maximum size of 1.
      */
-    resolveReferences(currentPath, references, flags) {
+    _resolveReferences(currentPath, references, flags) {
         let result = [];
 
         if (! Array.isArray(references)) {
@@ -435,7 +480,7 @@ export default class Resolver {
 
             reference = references[i];
 
-            if (this.isVirtualReference(reference) || this.isLinkReference(reference)) {
+            if (this._isVirtualReference(reference) || this._isLinkReference(reference)) {
                 result.push(reference);
 
                 if (flags & this.STOP_ON_FIRST) {
@@ -445,12 +490,12 @@ export default class Resolver {
                 continue;
             }
 
-            let absoluteReference = path.normalize(
+            let absoluteReference = PathUtil.normalize(
                 this.baseDirectory.replace(/\/+$/, '') + '/' + reference.replace(/^\/+/, '')
             );
 
             try {
-                fs.accessSync(absoluteReference, fs.F_OK);
+                Filesystem.accessSync(absoluteReference, Filesystem.F_OK);
 
                 result.push(absoluteReference);
 
@@ -464,12 +509,55 @@ export default class Resolver {
     }
 
     /**
+     * Flattens a two-level reference array into a one-level array and filters
+     * out any references that don't match the given regular expression.
+     *
+     * This method takes a two-level reference array as returned by
+     * {@link searchReferences()}. The references are scanned for Puli paths
+     * matching the given regular expression. Those matches are returned.
+     *
+     * If a matching path refers to more than one reference, the first reference
+     * is returned in the resulting array.
+     *
+     * All references that contain directory paths may be traversed recursively and
+     * scanned for more paths matching the regular expression. This recursive
+     * traversal can be limited by passing a `$maxDepth` (see {@link getPathDepth()}).
+     * By default, this `$maxDepth` is equal to zero (no recursive scan).
+     *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+     *
+     * The flag `NO_SEARCH_FILESYSTEM` may be used to check for whether the found
+     * paths actually exist on the filesystem.
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The keys of the returned array are Puli paths. Their order is undefined.
+     */
+    _flattenWithFilter(references, glob, flags) {
+        let results = [];
+
+        for (let currentPath in references) {
+            if (! references.hasOwnProperty(currentPath)) {
+                continue;
+            }
+
+            if (typeof results[currentPath] === 'undefined' && globMatch()) {
+                // todo
+            }
+        }
+    }
+
+    /**
      * Remove the lasting slashes of a string
      *
      * @param string
      * @returns string
      */
-    rtrimSlashes(string) {
+    _rtrimSlashes(string) {
         return string.replace(/\/+$/, '');
     }
 
@@ -477,7 +565,7 @@ export default class Resolver {
      * @param {string} reference
      * @returns {boolean}
      */
-    isVirtualReference(reference) {
+    _isVirtualReference(reference) {
         return reference === null;
     }
 
@@ -485,23 +573,8 @@ export default class Resolver {
      * @param {string} reference
      * @returns {boolean}
      */
-    isLinkReference(reference) {
+    _isLinkReference(reference) {
         return reference !== null && reference.length > 0 && '@' === reference.substr(0, 1);
-    }
-
-    /**
-     *
-     * @param references
-     * @returns {string}
-     */
-    flatten(references) {
-        let keys = Object.keys(references);
-
-        if (0 === keys.length) {
-            return null;
-        }
-
-        return references[keys[0]];
     }
 
 }

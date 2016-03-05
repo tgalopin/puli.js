@@ -27,6 +27,14 @@ var _fs = require('fs');
 
 var _fs2 = _interopRequireDefault(_fs);
 
+var _globBase = require('glob-base');
+
+var _globBase2 = _interopRequireDefault(_globBase);
+
+var _micromatch = require('micromatch');
+
+var _micromatch2 = _interopRequireDefault(_micromatch);
+
 /**
  * Resolves Puli virtulal paths into filesystem paths.
  * You should not use this component directly. Use the Puli
@@ -99,7 +107,7 @@ var Resolver = (function () {
             var result = {};
             var foundMatchingMappings = false;
 
-            searchPath = this.rtrimSlashes(searchPath);
+            searchPath = this._rtrimSlashes(searchPath);
             var searchPathForTest = searchPath + '/';
 
             for (var currentPath in this.json.references) {
@@ -107,14 +115,14 @@ var Resolver = (function () {
                     continue;
                 }
 
-                var currentPathForTest = this.rtrimSlashes(currentPath) + '/';
+                var currentPathForTest = this._rtrimSlashes(currentPath) + '/';
                 var currentReferences = this.json.references[currentPath];
 
                 // We found a mapping that matches the search path
                 // e.g. mapping /a/b for path /a/b
                 if (searchPathForTest === currentPathForTest) {
                     foundMatchingMappings = true;
-                    currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
+                    currentReferences = this._resolveReferences(currentPath, currentReferences, flags);
 
                     if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                         continue;
@@ -135,7 +143,7 @@ var Resolver = (function () {
                 // e.g. mapping /a/b/c for path /a/b
                 if (flags & this.INCLUDE_NESTED && 0 === currentPathForTest.indexOf(searchPathForTest)) {
                     foundMatchingMappings = true;
-                    currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
+                    currentReferences = this._resolveReferences(currentPath, currentReferences, flags);
 
                     if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                         continue;
@@ -159,7 +167,7 @@ var Resolver = (function () {
 
                     if (flags & this.INCLUDE_ANCESTORS) {
                         // Include the references of the ancestor
-                        currentReferences = this.resolveReferences(currentPath, currentReferences, flags);
+                        currentReferences = this._resolveReferences(currentPath, currentReferences, flags);
 
                         if (typeof currentReferences === 'undefined' || 0 === currentReferences.length) {
                             continue;
@@ -179,17 +187,17 @@ var Resolver = (function () {
                     // Check the filesystem directories pointed to by the ancestors
                     // for the searched path
                     var nestedPath = searchPath.substr(currentPathForTest.length);
-                    var currentPathWithNested = this.rtrimSlashes(currentPath) + '/' + nestedPath;
+                    var currentPathWithNested = this._rtrimSlashes(currentPath) + '/' + nestedPath;
 
                     // Follow links so that we can check the nested directories in
                     // the final transitive link targets
-                    var currentReferencesResolved = this.followLinks(
+                    var currentReferencesResolved = this._followLinks(
                     // Never stop on first, since appendNestedPath() might
                     // discard the first but accept the second entry
-                    this.resolveReferences(currentPath, currentReferences, flags & ~this.STOP_ON_FIRST));
+                    this._resolveReferences(currentPath, currentReferences, flags & ~this.STOP_ON_FIRST));
 
                     // Append the path and check which of the resulting paths exist
-                    var nestedReferences = this.appendPathAndFilterExisting(currentReferencesResolved, nestedPath, flags);
+                    var nestedReferences = this._appendPathAndFilterExisting(currentReferencesResolved, nestedPath, flags);
 
                     // None of the results exists
                     if (0 === nestedReferences.length) {
@@ -299,6 +307,50 @@ var Resolver = (function () {
         }
 
         /**
+         *
+         * @param references
+         * @returns {string}
+         */
+    }, {
+        key: 'flatten',
+        value: function flatten(references) {
+            if (!references || 0 === references.length) {
+                return [];
+            }
+
+            var keys = Object.keys(references);
+
+            if (0 === keys.length) {
+                return [];
+            }
+
+            return references[keys[0]];
+        }
+
+        /**
+         * Get references for a given glob.
+         *
+         * @param {string} query
+         * @param {int} flags
+         *
+         * @return {Array}
+         */
+    }, {
+        key: 'referencesForGlob',
+        value: function referencesForGlob(query, flags) {
+            var glob = (0, _globBase2['default'])(query);
+
+            if (!glob.isGlob) {
+                return this.flatten(this.searchReferences(query, this.STOP_ON_FIRST));
+            }
+
+            return this._flattenWithFilter(
+            // Never stop on the first result before applying the filter since
+            // the filter may reject the only returned path
+            this.searchReferences(glob.base, this.INCLUDE_NESTED), query, flags);
+        }
+
+        /**
          * Follows any link in a list of references.
          *
          * This method takes all the given references, checks for links starting
@@ -312,8 +364,8 @@ var Resolver = (function () {
          * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
          */
     }, {
-        key: 'followLinks',
-        value: function followLinks(references, flags) {
+        key: '_followLinks',
+        value: function _followLinks(references, flags) {
             var result = [];
             var reference = undefined,
                 referencedPath = undefined,
@@ -328,7 +380,7 @@ var Resolver = (function () {
                 reference = references[key];
 
                 // Not a link
-                if (!this.isLinkReference(reference)) {
+                if (!this._isLinkReference(reference)) {
                     result.push(reference);
 
                     if (flags & this.STOP_ON_FIRST) {
@@ -349,7 +401,7 @@ var Resolver = (function () {
                     }
 
                     // Follow links recursively
-                    referencedReferences = this.followLinks(referencedSearch[i]);
+                    referencedReferences = this._followLinks(referencedSearch[i]);
 
                     // Append all resulting target paths to the result
                     for (var j in referencedReferences) {
@@ -384,8 +436,8 @@ var Resolver = (function () {
          * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
          */
     }, {
-        key: 'appendPathAndFilterExisting',
-        value: function appendPathAndFilterExisting(references, nestedPath, flags) {
+        key: '_appendPathAndFilterExisting',
+        value: function _appendPathAndFilterExisting(references, nestedPath, flags) {
             var result = [];
             var reference = undefined,
                 nestedReference = undefined;
@@ -399,11 +451,11 @@ var Resolver = (function () {
 
                 // Filter out null values
                 // Links should be followed before calling this method
-                if (this.isVirtualReference(reference)) {
+                if (this._isVirtualReference(reference)) {
                     continue;
                 }
 
-                nestedReference = this.rtrimSlashes(reference) + '/' + nestedPath;
+                nestedReference = this._rtrimSlashes(reference) + '/' + nestedPath;
 
                 try {
                     _fs2['default'].accessSync(nestedReference, _fs2['default'].F_OK);
@@ -442,8 +494,8 @@ var Resolver = (function () {
          * In that case, the results array has a maximum size of 1.
          */
     }, {
-        key: 'resolveReferences',
-        value: function resolveReferences(currentPath, references, flags) {
+        key: '_resolveReferences',
+        value: function _resolveReferences(currentPath, references, flags) {
             var result = [];
 
             if (!Array.isArray(references)) {
@@ -459,7 +511,7 @@ var Resolver = (function () {
 
                 reference = references[i];
 
-                if (this.isVirtualReference(reference) || this.isLinkReference(reference)) {
+                if (this._isVirtualReference(reference) || this._isLinkReference(reference)) {
                     result.push(reference);
 
                     if (flags & this.STOP_ON_FIRST) {
@@ -486,14 +538,59 @@ var Resolver = (function () {
         }
 
         /**
+         * Flattens a two-level reference array into a one-level array and filters
+         * out any references that don't match the given regular expression.
+         *
+         * This method takes a two-level reference array as returned by
+         * {@link searchReferences()}. The references are scanned for Puli paths
+         * matching the given regular expression. Those matches are returned.
+         *
+         * If a matching path refers to more than one reference, the first reference
+         * is returned in the resulting array.
+         *
+         * All references that contain directory paths may be traversed recursively and
+         * scanned for more paths matching the regular expression. This recursive
+         * traversal can be limited by passing a `$maxDepth` (see {@link getPathDepth()}).
+         * By default, this `$maxDepth` is equal to zero (no recursive scan).
+         *
+         * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+         *
+         * The flag `NO_SEARCH_FILESYSTEM` may be used to check for whether the found
+         * paths actually exist on the filesystem.
+         *
+         * Each reference returned by this method can be:
+         *
+         *  * `null`
+         *  * a link starting with `@`
+         *  * an absolute filesystem path
+         *
+         * The keys of the returned array are Puli paths. Their order is undefined.
+         */
+    }, {
+        key: '_flattenWithFilter',
+        value: function _flattenWithFilter(references, glob, flags) {
+            var results = [];
+
+            for (var currentPath in references) {
+                if (!references.hasOwnProperty(currentPath)) {
+                    continue;
+                }
+
+                if (typeof results[currentPath] === 'undefined' && (0, _micromatch2['default'])()) {
+                    // todo
+                }
+            }
+        }
+
+        /**
          * Remove the lasting slashes of a string
          *
          * @param string
          * @returns string
          */
     }, {
-        key: 'rtrimSlashes',
-        value: function rtrimSlashes(string) {
+        key: '_rtrimSlashes',
+        value: function _rtrimSlashes(string) {
             return string.replace(/\/+$/, '');
         }
 
@@ -502,8 +599,8 @@ var Resolver = (function () {
          * @returns {boolean}
          */
     }, {
-        key: 'isVirtualReference',
-        value: function isVirtualReference(reference) {
+        key: '_isVirtualReference',
+        value: function _isVirtualReference(reference) {
             return reference === null;
         }
 
@@ -512,26 +609,9 @@ var Resolver = (function () {
          * @returns {boolean}
          */
     }, {
-        key: 'isLinkReference',
-        value: function isLinkReference(reference) {
+        key: '_isLinkReference',
+        value: function _isLinkReference(reference) {
             return reference !== null && reference.length > 0 && '@' === reference.substr(0, 1);
-        }
-
-        /**
-         *
-         * @param references
-         * @returns {string}
-         */
-    }, {
-        key: 'flatten',
-        value: function flatten(references) {
-            var keys = Object.keys(references);
-
-            if (0 === keys.length) {
-                return null;
-            }
-
-            return references[keys[0]];
         }
     }]);
 
