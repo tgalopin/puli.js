@@ -35,6 +35,10 @@ var _micromatch = require('micromatch');
 
 var _micromatch2 = _interopRequireDefault(_micromatch);
 
+var _fsReaddirRecursive = require('fs-readdir-recursive');
+
+var _fsReaddirRecursive2 = _interopRequireDefault(_fsReaddirRecursive);
+
 /**
  * Resolves Puli virtulal paths into filesystem paths.
  * You should not use this component directly. Use the Puli
@@ -576,10 +580,50 @@ var Resolver = (function () {
                     continue;
                 }
 
-                if (typeof results[currentPath] === 'undefined' && (0, _micromatch2['default'])()) {
-                    // todo
+                var currentReferences = references[currentPath];
+
+                if (typeof results[currentPath] === 'undefined' && _micromatch2['default'].isMatch(currentPath, glob)) {
+                    results[currentPath] = currentReferences[0];
+
+                    if (flags & this.STOP_ON_FIRST) {
+                        return Object.values(results);
+                    }
+                }
+
+                // First follow any links before we check which of them is a directory
+                currentReferences = this._followLinks(currentReferences);
+                currentPath = this._rtrimSlashes(currentPath);
+
+                // Search the nested entries if desired
+                for (var i in currentReferences) {
+                    if (!currentReferences.hasOwnProperty(i)) {
+                        continue;
+                    }
+
+                    var baseFilesystemPath = currentReferences[i];
+
+                    if (!_fs2['default'].lstatSync(baseFilesystemPath).isDirectory()) {
+                        continue;
+                    }
+
+                    var nestedFilePaths = (0, _fsReaddirRecursive2['default'])(baseFilesystemPath);
+
+                    for (var j in nestedFilePaths) {
+                        var nestedPath = currentPath + '/' + nestedFilePaths[j];
+                        var nestedFilesystemPath = baseFilesystemPath + '/' + nestedFilePaths[j];
+
+                        if (typeof results[nestedPath] === 'undefined' && _micromatch2['default'].isMatch(nestedPath, glob)) {
+                            results[nestedPath] = nestedFilesystemPath;
+
+                            if (flags & this.STOP_ON_FIRST) {
+                                return Object.values(results);
+                            }
+                        }
+                    }
                 }
             }
+
+            return Object.values(results);
         }
 
         /**

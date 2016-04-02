@@ -37,11 +37,13 @@
   ],
   "dependencies": {
     "glob-base": "^0.3.0",
+    "fs-readdir-recursive": "^1.0.0",
     "micromatch": "^2.3.7"
   },
   "devDependencies": {
     "babel": "^5.2.17",
     "chai": "^2.3.0",
+    "fs-readdir-recursive": "^1.0.0",
     "gulp": "^3.8.11",
     "gulp-babel": "^5.1.0",
     "gulp-jshint": "^1.12.0",

@@ -108,9 +108,7 @@ export default class Puli {
      * @returns {boolean} Whether the query had results or not
      */
     exists(query) {
-        query = this._sanitize(query);
-
-        return null;
+        return this.resolver.referencesForGlob(this._sanitize(query), this.resolver.STOP_ON_FIRST).length > 0;
     }
 
     /**

@@ -143,9 +143,7 @@ var Puli = (function () {
     }, {
         key: 'exists',
         value: function exists(query) {
-            query = this._sanitize(query);
-
-            return null;
+            return this.resolver.referencesForGlob(this._sanitize(query), this.resolver.STOP_ON_FIRST).length > 0;
         }
 
         /**

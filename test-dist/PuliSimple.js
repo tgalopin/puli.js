@@ -97,8 +97,32 @@ describe('Puli - Simple (without order nor orverride) -', function () {
     });
 
     it('paths() with nested glob', function () {
+        var expectedKeys = ['/fixtures/resources/dir1/file1', '/fixtures/resources/dir2/file2', '/fixtures/resources/dir3/resources/nested', '/fixtures/resources/file', '/fixtures/resources/nested'];
+
+        var globRepo = _distPuliJs2['default'].load(__dirname + '/fixtures/glob-nested.json', __dirname);
+        var paths = globRepo.paths('/fixtures/resources/**');
+
+        for (var i in expectedKeys) {
+            (0, _chai.assert)(paths.indexOf(globRepo.path(expectedKeys[i])) > -1);
+        }
+    });
+
+    it('exists() without glob', function () {
+        var globRepo = _distPuliJs2['default'].load(__dirname + '/fixtures/glob-direct.json', __dirname);
+
+        (0, _chai.assert)(globRepo.exists('/'));
+        (0, _chai.assert)(globRepo.exists('/fixtures'));
+        (0, _chai.assert)(globRepo.exists('/fixtures/resources/dir1'));
+        (0, _chai.assert)(globRepo.exists('/fixtures/resources/dir2'));
+        (0, _chai.assert)(!globRepo.exists('/fixtures/resources/invalid'));
+    });
+
+    it('exists() with nested glob', function () {
         var globRepo = _distPuliJs2['default'].load(__dirname + '/fixtures/glob-nested.json', __dirname);
 
-        console.log(globRepo.paths('/fixtures/resources/**'));
+        (0, _chai.assert)(globRepo.exists('/'));
+        (0, _chai.assert)(globRepo.exists('/fixtures'));
+        (0, _chai.assert)(globRepo.exists('/fixtures/resources/**'));
+        (0, _chai.assert)(!globRepo.exists('/fixtures/resources/*/*/invalid'));
     });
 });

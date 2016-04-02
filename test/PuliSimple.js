@@ -78,9 +78,39 @@ describe('Puli - Simple (without order nor orverride) -', () => {
     });
 
     it('paths() with nested glob', () => {
+        let expectedKeys = [
+            '/fixtures/resources/dir1/file1',
+            '/fixtures/resources/dir2/file2',
+            '/fixtures/resources/dir3/resources/nested',
+            '/fixtures/resources/file',
+            '/fixtures/resources/nested'
+        ];
+
+        let globRepo = Puli.load(__dirname + '/fixtures/glob-nested.json', __dirname);
+        let paths = globRepo.paths('/fixtures/resources/**');
+
+        for (let i in expectedKeys) {
+            assert(paths.indexOf(globRepo.path(expectedKeys[i])) > -1);
+        }
+    });
+
+    it('exists() without glob', () => {
+        let globRepo = Puli.load(__dirname + '/fixtures/glob-direct.json', __dirname);
+
+        assert(globRepo.exists('/'));
+        assert(globRepo.exists('/fixtures'));
+        assert(globRepo.exists('/fixtures/resources/dir1'));
+        assert(globRepo.exists('/fixtures/resources/dir2'));
+        assert(! globRepo.exists('/fixtures/resources/invalid'));
+    });
+
+    it('exists() with nested glob', () => {
         let globRepo = Puli.load(__dirname + '/fixtures/glob-nested.json', __dirname);
 
-        console.log(globRepo.paths('/fixtures/resources/**'));
+        assert(globRepo.exists('/'));
+        assert(globRepo.exists('/fixtures'));
+        assert(globRepo.exists('/fixtures/resources/**'));
+        assert(! globRepo.exists('/fixtures/resources/*/*/invalid'));
     });
 
 });
