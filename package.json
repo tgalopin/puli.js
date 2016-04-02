@@ -51,7 +51,7 @@
     "gulp-plumber": "^1.0.1",
     "mocha": "^2.2.4"
   },
-  "engine": "node >= 0.10.x",
+  "engine": "node >= 0.12.x",
   "homepage": "https://github.com/tgalopin/puli.js",
   "bugs": {
     "url": "https://github.com/tgalopin/puli.js/issues"
