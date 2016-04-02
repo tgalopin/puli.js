@@ -49,6 +49,7 @@ gulp.task('babel', ['lint'], () => {
         .pipe(babel({ sourceRoot: repository.path('/my/es6/resources') }))
         .pipe(gulp.dest(repository.path('/my/dist')));
 });
+```
 
 
 puli.js provides a read-only API: you cannot edit the path-mappings using it.
