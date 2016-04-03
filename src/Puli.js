@@ -9,12 +9,11 @@
  * file that was distributed with this source code.
  */
 
-import PathUtil from 'path';
+import PathUtil from './PathUtil.js';
 import Loader from './Loader.js';
 import Resolver from './Resolver.js';
 import ResourceNotFoundException from './Exception/ResourceNotFoundException.js';
 import ResourceVirtualException from './Exception/ResourceVirtualException.js';
-import InvalidPathException from './Exception/InvalidPathException.js';
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -75,9 +74,9 @@ export default class Puli {
      * @returns {string|null} The associated filesystem path
      */
     path(path) {
-        path = this._sanitize(path);
+        path = PathUtil.sanitize(path);
 
-        let references = this.resolver.searchReferences(PathUtil.normalize(path), this.resolver.STOP_ON_FIRST);
+        let references = this.resolver.searchReferences(path, this.resolver.STOP_ON_FIRST);
         let flattened = this.resolver.flatten(references);
 
         if (! flattened || typeof flattened[0] === 'undefined') {
@@ -98,7 +97,7 @@ export default class Puli {
      * @returns {Array} The associated filesystem paths
      */
     paths(query) {
-        return this.resolver.referencesForGlob(this._sanitize(query), 0);
+        return this.resolver.referencesForGlob(PathUtil.sanitize(query), 0);
     }
 
     /**
@@ -108,34 +107,7 @@ export default class Puli {
      * @returns {boolean} Whether the query had results or not
      */
     exists(query) {
-        return this.resolver.referencesForGlob(this._sanitize(query), this.resolver.STOP_ON_FIRST).length > 0;
-    }
-
-    /**
-     * Ensure a given path is valid, not empty and absolute.
-     * Internal method.
-     *
-     * @param {string} path
-     *
-     * @private
-     */
-    _sanitize(path) {
-        // Type
-        if ('string' !== typeof path) {
-            throw new InvalidPathException(path);
-        }
-
-        // Non-empty
-        if ('' === path) {
-            throw new InvalidPathException(path);
-        }
-
-        // Absolute
-        if ('/' !== path.substr(0, 1)) {
-            throw new InvalidPathException(path);
-        }
-
-        return PathUtil.normalize(path);
+        return this.resolver.referencesForGlob(PathUtil.sanitize(query), this.resolver.STOP_ON_FIRST).length > 0;
     }
 
 }

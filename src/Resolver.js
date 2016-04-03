@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-import PathUtil from 'path';
 import Filesystem from 'fs';
 import GlobInfo from 'glob-base';
 import Micromatch from 'micromatch';
 import ReadDir from 'fs-readdir-recursive';
+import PathUtil from './PathUtil.js';
 
 /**
  * Resolves Puli virtulal paths into filesystem paths.
@@ -290,7 +290,7 @@ export default class Resolver {
     /**
      *
      * @param references
-     * @returns {string}
+     * @returns {Array}
      */
     flatten(references) {
         if (! references || 0 === references.length) {
@@ -303,7 +303,15 @@ export default class Resolver {
             return [];
         }
 
-        return references[keys[0]];
+        let normalized = [];
+
+        for (let i in references[keys[0]]) {
+            if (references[keys[0]].hasOwnProperty(i)) {
+                normalized[i] = PathUtil.normalize(references[keys[0]][i]);
+            }
+        }
+
+        return normalized;
     }
 
     /**
@@ -491,7 +499,7 @@ export default class Resolver {
                 continue;
             }
 
-            let absoluteReference = PathUtil.normalize(
+            let absoluteReference = PathUtil.canonicalize(
                 this.baseDirectory.replace(/\/+$/, '') + '/' + reference.replace(/^\/+/, '')
             );
 
@@ -549,7 +557,7 @@ export default class Resolver {
             let currentReferences = references[currentPath];
 
             if (typeof results[currentPath] === 'undefined' && Micromatch.isMatch(currentPath, glob)) {
-                results[currentPath] = currentReferences[0];
+                results[currentPath] = PathUtil.normalize(currentReferences[0]);
 
                 if (flags & this.STOP_ON_FIRST) {
                     return Object.values(results);
@@ -583,7 +591,7 @@ export default class Resolver {
                     let nestedFilesystemPath = baseFilesystemPath + '/' + nestedFilePaths[j];
 
                     if (typeof results[nestedPath] === 'undefined' && Micromatch.isMatch(nestedPath, glob)) {
-                        results[nestedPath] = nestedFilesystemPath;
+                        results[nestedPath] = PathUtil.normalize(nestedFilesystemPath);
 
                         if (flags & this.STOP_ON_FIRST) {
                             return Object.values(results);
