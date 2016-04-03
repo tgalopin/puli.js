@@ -20,47 +20,61 @@ var config = {
     }
 };
 
-gulp.task('babel', ['babel-src', 'babel-test']);
-
-gulp.task('babel-src', ['lint-src'], () =>
+/*
+ * Babel
+ */
+gulp.task('babel-src', ['jshint-src'], () =>
     gulp.src(config.paths.js.src)
         .pipe(plumber())
         .pipe(babel({ sourceRoot: config.paths.js.sourceRoot }))
         .pipe(gulp.dest(config.paths.js.dist))
 );
 
-gulp.task('babel-test', ['lint-test'], () =>
+gulp.task('babel-test', ['jshint-test'], () =>
     gulp.src(config.paths.test.src)
         .pipe(plumber())
         .pipe(babel({ sourceRoot: config.paths.test.sourceRoot }))
         .pipe(gulp.dest(config.paths.test.dist))
 );
 
-gulp.task('lint-src', () =>
+gulp.task('babel', ['babel-src', 'babel-test']);
+
+/*
+ * JSHint
+ */
+gulp.task('jshint-src', () =>
     gulp.src(config.paths.js.src)
         .pipe(plumber())
         .pipe(jshint())
         .pipe(jshint.reporter('default'))
 );
 
-gulp.task('lint-test', () =>
+gulp.task('jshint-test', () =>
     gulp.src(config.paths.test.src)
         .pipe(plumber())
         .pipe(jshint())
         .pipe(jshint.reporter('default'))
 );
 
-gulp.task('lint', ['lint-src', 'lint-test']);
+gulp.task('jshint', ['jshint-src', 'jshint-test']);
 
-gulp.task('watch', () => {
-    gulp.run('test');
-    gulp.watch(config.paths.js.src, ['babel-src', 'test']);
-    gulp.watch(config.paths.test.src, ['babel-test', 'test']);
-});
-
-gulp.task('test', ['babel'], () =>
-    gulp.src([config.paths.test.run]).pipe(mocha({ reporter: 'min' }))
+/*
+ * Useful commands
+ */
+gulp.task('test', ['jshint', 'babel'], () =>
+    gulp.src([config.paths.test.run]).pipe(mocha({ reporter: 'dot' }))
 );
 
-// Default Task
+gulp.task('watch-run', () => {
+    gulp.src([config.paths.test.run]).pipe(mocha({ reporter: 'min' }));
+});
+
+gulp.task('watch', ['babel', 'watch-run'], () => {
+    gulp.watch(config.paths.js.src, ['babel-src', 'watch-run']);
+    gulp.watch(config.paths.test.src, ['babel-test', 'watch-run']);
+});
+
+/*
+ * Default task
+ */
 gulp.task('default', ['watch']);

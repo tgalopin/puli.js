@@ -10,10 +10,6 @@ var _distPuliJs = require('../dist/Puli.js');
 
 var _distPuliJs2 = _interopRequireDefault(_distPuliJs);
 
-var _distExceptionResourceNotFoundExceptionJs = require('../dist/Exception/ResourceNotFoundException.js');
-
-var _distExceptionResourceNotFoundExceptionJs2 = _interopRequireDefault(_distExceptionResourceNotFoundExceptionJs);
-
 var _distExceptionResourceVirtualExceptionJs = require('../dist/Exception/ResourceVirtualException.js');
 
 var _distExceptionResourceVirtualExceptionJs2 = _interopRequireDefault(_distExceptionResourceVirtualExceptionJs);

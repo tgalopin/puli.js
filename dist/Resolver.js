@@ -342,7 +342,7 @@ var Resolver = (function () {
     }, {
         key: 'referencesForGlob',
         value: function referencesForGlob(query, flags) {
-            var glob = (0, _globBase2['default'])(query);
+            var glob = new _globBase2['default'](query);
 
             if (!glob.isGlob) {
                 return this.flatten(this.searchReferences(query, this.STOP_ON_FIRST));
@@ -606,9 +606,13 @@ var Resolver = (function () {
                         continue;
                     }
 
-                    var nestedFilePaths = (0, _fsReaddirRecursive2['default'])(baseFilesystemPath);
+                    var nestedFilePaths = new _fsReaddirRecursive2['default'](baseFilesystemPath);
 
                     for (var j in nestedFilePaths) {
+                        if (!nestedFilePaths.hasOwnProperty(j)) {
+                            continue;
+                        }
+
                         var nestedPath = currentPath + '/' + nestedFilePaths[j];
                         var nestedFilesystemPath = baseFilesystemPath + '/' + nestedFilePaths[j];
 

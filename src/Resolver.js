@@ -315,7 +315,7 @@ export default class Resolver {
      * @return {Array}
      */
     referencesForGlob(query, flags) {
-        let glob = GlobInfo(query);
+        let glob = new GlobInfo(query);
 
         if (! glob.isGlob) {
             return this.flatten(this.searchReferences(query, this.STOP_ON_FIRST));
@@ -572,9 +572,13 @@ export default class Resolver {
                     continue;
                 }
 
-                let nestedFilePaths = ReadDir(baseFilesystemPath);
+                let nestedFilePaths = new ReadDir(baseFilesystemPath);
 
                 for (let j in nestedFilePaths) {
+                    if (! nestedFilePaths.hasOwnProperty(j)) {
+                        continue;
+                    }
+
                     let nestedPath = currentPath + '/' + nestedFilePaths[j];
                     let nestedFilesystemPath = baseFilesystemPath + '/' + nestedFilePaths[j];
 

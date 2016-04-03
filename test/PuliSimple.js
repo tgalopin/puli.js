@@ -90,6 +90,10 @@ describe('Puli - Simple (without order nor orverride) -', () => {
         let paths = globRepo.paths('/fixtures/resources/**');
 
         for (let i in expectedKeys) {
+            if (! expectedKeys.hasOwnProperty(i)) {
+                continue;
+            }
+
             assert(paths.indexOf(globRepo.path(expectedKeys[i])) > -1);
         }
     });

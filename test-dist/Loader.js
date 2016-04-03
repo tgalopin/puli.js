@@ -36,10 +36,8 @@ describe('Loader', function () {
     // Test reference
     var fixtures = getLoadFixtures();
 
-    var _loop = function (i) {
-        var file = fixtures[i];
-
-        it('load("' + file + '")', function () {
+    var buildLoadAssertFunction = function buildLoadAssertFunction(file) {
+        return function () {
             var loaded = _distLoaderJs2['default'].load(__dirname + '/reference/' + file);
 
             _chai.assert.isObject(loaded);
@@ -47,14 +45,22 @@ describe('Loader', function () {
             _chai.assert.isObject(loaded.references);
 
             for (var path in loaded.references) {
+                if (!loaded.references.hasOwnProperty(path)) {
+                    continue;
+                }
+
                 var reference = loaded.references[path];
                 _chai.assert.isTrue(Array.isArray(reference) || typeof reference === 'string' || null === reference);
             }
-        });
+        };
     };
 
     for (var i in fixtures) {
-        _loop(i);
+        if (!fixtures.hasOwnProperty(i)) {
+            continue;
+        }
+
+        it('load("' + fixtures[i] + '")', buildLoadAssertFunction(fixtures[i]));
     }
 
     function getLoadFixtures() {

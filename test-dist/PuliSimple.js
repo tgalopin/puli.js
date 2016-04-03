@@ -103,6 +103,10 @@ describe('Puli - Simple (without order nor orverride) -', function () {
         var paths = globRepo.paths('/fixtures/resources/**');
 
         for (var i in expectedKeys) {
+            if (!expectedKeys.hasOwnProperty(i)) {
+                continue;
+            }
+
             (0, _chai.assert)(paths.indexOf(globRepo.path(expectedKeys[i])) > -1);
         }
     });

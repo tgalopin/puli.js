@@ -21,10 +21,8 @@ describe('Loader', () => {
     // Test reference
     let fixtures = getLoadFixtures();
 
-    for (let i in fixtures) {
-        let file = fixtures[i];
-
-        it('load("' + file + '")', () => {
+    let buildLoadAssertFunction = (file) => {
+        return () => {
             let loaded = Loader.load(__dirname + '/reference/' + file);
 
             assert.isObject(loaded);
@@ -32,10 +30,22 @@ describe('Loader', () => {
             assert.isObject(loaded.references);
 
             for (let path in loaded.references) {
+                if (! loaded.references.hasOwnProperty(path)) {
+                    continue;
+                }
+
                 let reference = loaded.references[path];
                 assert.isTrue(Array.isArray(reference) || typeof reference === 'string' || null === reference);
             }
-        });
+        };
+    };
+
+    for (let i in fixtures) {
+        if (! fixtures.hasOwnProperty(i)) {
+            continue;
+        }
+
+        it('load("' + fixtures[i] + '")', buildLoadAssertFunction(fixtures[i]));
     }
 
     function getLoadFixtures() {

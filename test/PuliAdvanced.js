@@ -4,7 +4,6 @@
 
 import {expect, assert} from 'chai';
 import Puli from '../dist/Puli.js';
-import ResourceNotFoundException from '../dist/Exception/ResourceNotFoundException.js';
 import ResourceVirtualException from '../dist/Exception/ResourceVirtualException.js';
 
 describe('Puli - Advanced (with order and orverride) -', () => {
