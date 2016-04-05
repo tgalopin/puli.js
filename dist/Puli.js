@@ -19,9 +19,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _path2 = require('path');
+var _PathUtilJs = require('./PathUtil.js');
 
-var _path3 = _interopRequireDefault(_path2);
+var _PathUtilJs2 = _interopRequireDefault(_PathUtilJs);
 
 var _LoaderJs = require('./Loader.js');
 
@@ -38,10 +38,6 @@ var _ExceptionResourceNotFoundExceptionJs2 = _interopRequireDefault(_ExceptionRe
 var _ExceptionResourceVirtualExceptionJs = require('./Exception/ResourceVirtualException.js');
 
 var _ExceptionResourceVirtualExceptionJs2 = _interopRequireDefault(_ExceptionResourceVirtualExceptionJs);
-
-var _ExceptionInvalidPathExceptionJs = require('./Exception/InvalidPathException.js');
-
-var _ExceptionInvalidPathExceptionJs2 = _interopRequireDefault(_ExceptionInvalidPathExceptionJs);
 
 /**
  * A resource repository is similar to a filesystem. It stores Puli resources
@@ -106,9 +102,9 @@ var Puli = (function () {
          * @returns {string|null} The associated filesystem path
          */
         value: function path(_path) {
-            _path = this._sanitize(_path);
+            _path = _PathUtilJs2['default'].sanitize(_path);
 
-            var references = this.resolver.searchReferences(_path3['default'].normalize(_path), this.resolver.STOP_ON_FIRST);
+            var references = this.resolver.searchReferences(_path, this.resolver.STOP_ON_FIRST);
             var flattened = this.resolver.flatten(references);
 
             if (!flattened || typeof flattened[0] === 'undefined') {
@@ -131,7 +127,7 @@ var Puli = (function () {
     }, {
         key: 'paths',
         value: function paths(query) {
-            return this.resolver.referencesForGlob(this._sanitize(query), 0);
+            return this.resolver.referencesForGlob(_PathUtilJs2['default'].sanitize(query), 0);
         }
 
         /**
@@ -143,36 +139,7 @@ var Puli = (function () {
     }, {
         key: 'exists',
         value: function exists(query) {
-            return this.resolver.referencesForGlob(this._sanitize(query), this.resolver.STOP_ON_FIRST).length > 0;
-        }
-
-        /**
-         * Ensure a given path is valid, not empty and absolute.
-         * Internal method.
-         *
-         * @param {string} path
-         *
-         * @private
-         */
-    }, {
-        key: '_sanitize',
-        value: function _sanitize(path) {
-            // Type
-            if ('string' !== typeof path) {
-                throw new _ExceptionInvalidPathExceptionJs2['default'](path);
-            }
-
-            // Non-empty
-            if ('' === path) {
-                throw new _ExceptionInvalidPathExceptionJs2['default'](path);
-            }
-
-            // Absolute
-            if ('/' !== path.substr(0, 1)) {
-                throw new _ExceptionInvalidPathExceptionJs2['default'](path);
-            }
-
-            return _path3['default'].normalize(path);
+            return this.resolver.referencesForGlob(_PathUtilJs2['default'].sanitize(query), this.resolver.STOP_ON_FIRST).length > 0;
         }
     }], [{
         key: 'load',

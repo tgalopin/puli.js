@@ -19,10 +19,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
 var _fs = require('fs');
 
 var _fs2 = _interopRequireDefault(_fs);
@@ -38,6 +34,10 @@ var _micromatch2 = _interopRequireDefault(_micromatch);
 var _fsReaddirRecursive = require('fs-readdir-recursive');
 
 var _fsReaddirRecursive2 = _interopRequireDefault(_fsReaddirRecursive);
+
+var _PathUtilJs = require('./PathUtil.js');
+
+var _PathUtilJs2 = _interopRequireDefault(_PathUtilJs);
 
 /**
  * Resolves Puli virtulal paths into filesystem paths.
@@ -313,7 +313,7 @@ var Resolver = (function () {
         /**
          *
          * @param references
-         * @returns {string}
+         * @returns {Array}
          */
     }, {
         key: 'flatten',
@@ -328,7 +328,15 @@ var Resolver = (function () {
                 return [];
             }
 
-            return references[keys[0]];
+            var normalized = [];
+
+            for (var i in references[keys[0]]) {
+                if (references[keys[0]].hasOwnProperty(i)) {
+                    normalized[i] = _PathUtilJs2['default'].normalize(references[keys[0]][i]);
+                }
+            }
+
+            return normalized;
         }
 
         /**
@@ -525,7 +533,7 @@ var Resolver = (function () {
                     continue;
                 }
 
-                var absoluteReference = _path2['default'].normalize(this.baseDirectory.replace(/\/+$/, '') + '/' + reference.replace(/^\/+/, ''));
+                var absoluteReference = _PathUtilJs2['default'].canonicalize(this.baseDirectory.replace(/\/+$/, '') + '/' + reference.replace(/^\/+/, ''));
 
                 try {
                     _fs2['default'].accessSync(absoluteReference, _fs2['default'].F_OK);
@@ -583,7 +591,7 @@ var Resolver = (function () {
                 var currentReferences = references[currentPath];
 
                 if (typeof results[currentPath] === 'undefined' && _micromatch2['default'].isMatch(currentPath, glob)) {
-                    results[currentPath] = currentReferences[0];
+                    results[currentPath] = _PathUtilJs2['default'].normalize(currentReferences[0]);
 
                     if (flags & this.STOP_ON_FIRST) {
                         return Object.values(results);
@@ -617,7 +625,7 @@ var Resolver = (function () {
                         var nestedFilesystemPath = baseFilesystemPath + '/' + nestedFilePaths[j];
 
                         if (typeof results[nestedPath] === 'undefined' && _micromatch2['default'].isMatch(nestedPath, glob)) {
-                            results[nestedPath] = nestedFilesystemPath;
+                            results[nestedPath] = _PathUtilJs2['default'].normalize(nestedFilesystemPath);
 
                             if (flags & this.STOP_ON_FIRST) {
                                 return Object.values(results);
